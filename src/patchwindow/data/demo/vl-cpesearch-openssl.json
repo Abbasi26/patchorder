@@ -1,0 +1,65 @@
+{
+  "nvd": [
+    {
+      "dataType": "CVE_RECORD",
+      "dataVersion": "5.1",
+      "cveMetadata": {
+        "cveId": "CVE-2024-0727",
+        "state": "PUBLISHED",
+        "datePublished": "2024-01-26T00:00:00.000Z"
+      },
+      "containers": {
+        "cna": {
+          "affected": [
+            {
+              "vendor": "OpenSSL",
+              "product": "OpenSSL",
+              "defaultStatus": "unaffected",
+              "versions": [
+                {
+                  "version": "3.0.0",
+                  "lessThan": "3.0.13",
+                  "versionType": "semver",
+                  "status": "affected"
+                },
+                {
+                  "version": "3.1.0",
+                  "lessThan": "3.1.5",
+                  "versionType": "semver",
+                  "status": "affected"
+                },
+                {
+                  "version": "1.1.1",
+                  "lessThan": "1.1.1x",
+                  "versionType": "custom",
+                  "status": "affected"
+                }
+              ]
+            }
+          ],
+          "descriptions": [
+            {
+              "lang": "en",
+              "value": "Processing a maliciously formatted PKCS12 file may lead OpenSSL to crash."
+            }
+          ],
+          "metrics": [
+            {
+              "cvssV3_1": {
+                "version": "3.1",
+                "baseScore": 5.5,
+                "baseSeverity": "MEDIUM",
+                "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
+              }
+            }
+          ],
+          "references": [
+            {
+              "url": "https://www.openssl.org/news/secadv/20240125.txt"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

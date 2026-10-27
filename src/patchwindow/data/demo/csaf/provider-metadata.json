@@ -1,44 +1,33 @@
 {
-  "canonical_url" : "https://wid.cert-bund.de/.well-known/csaf/provider-metadata.json",
-  "distributions" : [ {
-    "rolie" : {
-      "feeds" : [ {
-        "tlp_label" : "WHITE",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/white/bsi-white.json"
-      }, {
-        "tlp_label" : "WHITE",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/white/bsi-wid-white.json"
-      }, {
-        "tlp_label" : "GREEN",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/green/bsi-wid-green.json"
-      }, {
-        "tlp_label" : "GREEN",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/green/bsi-cvd-green.json"
-      }, {
-        "tlp_label" : "GREEN",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/green/bsi-green.json"
-      }, {
-        "tlp_label" : "WHITE",
-        "url" : "https://wid.cert-bund.de/.well-known/csaf/white/bsi-cvd-white.json"
-      } ]
+  "canonical_url": "https://example.org/.well-known/csaf/provider-metadata.json",
+  "distributions": [
+    {
+      "rolie": {
+        "feeds": [
+          {
+            "summary": "Fictional Example CERT feed for the patchwindow demo",
+            "tlp_label": "WHITE",
+            "url": "https://example.org/.well-known/csaf/white/example-cert-white.json"
+          }
+        ]
+      }
     }
-  } ],
-  "last_updated" : "2026-10-21T10:01:15.483+00:00",
-  "list_on_CSAF_aggregators" : true,
-  "metadata_version" : "2.0",
-  "mirror_on_CSAF_aggregators" : true,
-  "public_openpgp_keys" : [ {
-    "fingerprint" : "986C9498388F009DF4370A7746315B9C82AFBB9F",
-    "url" : "https://wid.cert-bund.de/.well-known/csaf/openpgp/986C9498388F009DF4370A7746315B9C82AFBB9F.asc"
-  }, {
-    "fingerprint" : "C20AC4CD519772E17457060D98456624DBD7CF0E",
-    "url" : "https://wid.cert-bund.de/.well-known/csaf/openpgp/C20AC4CD519772E17457060D98456624DBD7CF0E.asc"
-  } ],
-  "publisher" : {
-    "category" : "coordinator",
-    "contact_details" : "csaf-provider@cert-bund.de",
-    "name" : "Bundesamt für Sicherheit in der Informationstechnik",
-    "namespace" : "https://www.bsi.bund.de"
+  ],
+  "last_updated": "2024-01-26T00:00:00.000Z",
+  "list_on_CSAF_aggregators": false,
+  "metadata_version": "2.0",
+  "mirror_on_CSAF_aggregators": false,
+  "public_openpgp_keys": [
+    {
+      "fingerprint": "0000000000000000000000000000000000000000",
+      "url": "https://example.org/.well-known/csaf/openpgp/example-cert.asc"
+    }
+  ],
+  "publisher": {
+    "category": "coordinator",
+    "contact_details": "csaf@example.org",
+    "name": "Example CERT",
+    "namespace": "https://example.org/csaf"
   },
-  "role" : "csaf_trusted_provider"
+  "role": "csaf_trusted_provider"
 }

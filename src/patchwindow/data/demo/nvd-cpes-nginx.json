@@ -1,0 +1,57 @@
+{
+  "resultsPerPage": 2,
+  "startIndex": 0,
+  "totalResults": 3,
+  "format": "NVD_CPE",
+  "version": "2.0",
+  "timestamp": "2026-10-27T14:50:30.027",
+  "products": [
+    {
+      "cpe": {
+        "deprecated": true,
+        "cpeName": "cpe:2.3:a:igor_sysoev:nginx:0.1.27:*:*:*:*:*:*:*",
+        "cpeNameId": "A2661F3B-559D-40D6-89B8-DF0C2F50FD2B",
+        "lastModified": "2019-02-28T20:20:50.283",
+        "created": "2009-05-12T18:27:01.437",
+        "titles": [
+          {
+            "title": "Nginx 0.1.27",
+            "lang": "en"
+          }
+        ],
+        "deprecatedBy": [
+          {
+            "cpeName": "cpe:2.3:a:nginx:nginx:0.1.27:*:*:*:*:*:*:*",
+            "cpeNameId": "60280030-DDC8-4DB8-9C49-7A8C30F11E45"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:f5:nginx:1.25.2:*:*:*:*:*:*:*",
+        "cpeNameId": "FIXTURE-F5-NGINX",
+        "titles": [
+          {
+            "title": "F5 NGINX 1.25.2",
+            "lang": "en"
+          }
+        ]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:f5:nginx_plus:r30:*:*:*:*:*:*:*",
+        "cpeNameId": "FIXTURE-F5-NGINX-PLUS",
+        "titles": [
+          {
+            "title": "F5 NGINX Plus R30",
+            "lang": "en"
+          }
+        ]
+      }
+    }
+  ]
+}
