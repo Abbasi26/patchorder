@@ -20,7 +20,7 @@ dev = ["pytest>=8.0"]
 patchwindow = "patchwindow.cli:main"
 
 [project.urls]
-Homepage = "https://example.invalid/patchwindow"
+Homepage = "https://github.com/Abbasi26/patchorder"
 
 [tool.setuptools.packages.find]
 where = ["src"]
