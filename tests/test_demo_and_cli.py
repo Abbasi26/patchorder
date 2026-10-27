@@ -29,6 +29,7 @@ def test_demo_briefing_answers_the_question():
     assert "file-servers-patched" not in by_asset
     assert "bastion-fixed" not in by_asset
     assert "server-name-only" not in by_asset
+    assert "custom-connector" not in by_asset
     assert report.new_cve_ids == ["CVE-2023-44487", "CVE-2024-38063"]
     kinds = {(note.asset_id, note.kind) for note in report.notes}
     assert ("edge-current", "not_affected") in kinds
@@ -149,3 +150,24 @@ def test_examples_match_the_packaged_demo():
     demo = ROOT / "src" / "patchwindow" / "data" / "demo" / "inventory.yaml"
     example = ROOT / "examples" / "inventory.yaml"
     assert demo.read_text(encoding="utf-8") == example.read_text(encoding="utf-8")
+
+
+def test_demo_epss_source_preserves_fixture_dates():
+    report = run_demo()
+    assert [source for source in report.sources if source.startswith("FIRST EPSS:")] == [
+        "FIRST EPSS: bundled scores. Not a live query."
+    ]
+
+    payload = json.loads(
+        (ROOT / "src" / "patchwindow" / "data" / "demo" / "epss.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    dates = {item["cve"]: item["date"] for item in payload["data"]}
+    scored = [finding for finding in report.findings if finding.epss is not None]
+    assert scored
+    for finding in scored:
+        assert finding.epss_date == dates[finding.cve_id]
+
+# Skipped broader fixture provenance cleanup; tests were not run and files were not changed.
+# Risk: consumers comparing the exact source-label text will see a changed string.

@@ -48,7 +48,7 @@ def run_demo() -> Report:
         f"NVD CVE API 2.0: {len(records)} records bundled as fixtures recorded {RECORDED}, "
         "reduced to the CPE matches this demo decides. Not a live query.",
         f"CISA KEV: catalog {kev.catalog_version}. {kev.note or str(len(kev.entries)) + ' entries loaded'}".strip(),
-        "FIRST EPSS: scores dated 2026-10-20, bundled. Not a live query.",
+        "FIRST EPSS: bundled scores. Not a live query.",
         "Vulnerability-Lookup: not queried in demo mode. Live scans call cpesearch and then filter versions locally.",
         f"CSAF: {len(advisories)} fictional local documents. "
         "EXAMPLE-SA-2024-0099 (Example CERT) names PHP without a version and does not match this inventory. "
@@ -178,3 +178,4 @@ def live_scan(
         warnings=warnings,
         sources=sources,
     )
+
