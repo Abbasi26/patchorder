@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "patchwindow"
+version = "0.1.0"
+description = "Which CVEs apply to the versions in a local inventory, and what to patch first."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Wasaf Abbasi" }]
+keywords = ["cve", "vulnerability", "inventory", "epss", "kev"]
+dependencies = ["PyYAML>=6.0.1,<7"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+patchwindow = "patchwindow.cli:main"
+
+[project.urls]
+Homepage = "https://example.invalid/patchwindow"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+patchwindow = ["data/demo/**/*", "data/demo/**/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

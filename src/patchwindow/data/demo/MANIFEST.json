@@ -1,0 +1,12 @@
+{
+  "recorded": "2026-10-21",
+  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file, KEV catalog header, CERT-Bund provider metadata, and WID-SEC-W-2026-4055 are recorded responses. FIXTURE-SA-2024-0001 is synthetic and is not a CERT-Bund advisory. The KEV vulnerabilities array contains 1 of the catalog's published entries.",
+  "sources": {
+    "nvd_cve": "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=",
+    "epss": "https://api.first.org/data/v1/epss",
+    "kev": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    "csaf_provider": "https://wid.cert-bund.de/.well-known/csaf/provider-metadata.json",
+    "csaf_wid": "https://wid.cert-bund.de/.well-known/csaf/white/2026/wid-sec-w-2026-4055.json",
+    "vulnerability_lookup_browse": "https://vulnerability.circl.lu/api/browse/vendors?q=nginx&per_page=3"
+  }
+}

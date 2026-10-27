@@ -1,0 +1,74 @@
+# Fictional inventory. These are not real hosts.
+schema: patchwindow.inventory/v1
+name: Harbor Workshop (fictional)
+assets:
+  - id: edge-proxy
+    product: nginx
+    vendor: F5
+    version: "1.25.2"
+    count: 12
+    owner: platform
+    exposure: internet
+  - id: edge-current
+    product: nginx
+    vendor: F5
+    version: "1.27.2"
+    count: 3
+    owner: platform
+    exposure: internet
+  - id: tls-library
+    product: OpenSSL
+    vendor: OpenSSL
+    version: "3.0.12"
+    count: 30
+    owner: apps
+    exposure: internet
+  - id: file-servers
+    product: Windows Server 2022
+    vendor: Microsoft
+    version: "10.0.20348.2400"
+    count: 8
+    owner: windows
+    exposure: internal
+  - id: file-servers-patched
+    product: Windows Server 2022
+    vendor: Microsoft
+    version: "10.0.20348.2655"
+    count: 5
+    owner: windows
+    exposure: internal
+  - id: analyst-laptops
+    product: Windows 11 23H2
+    vendor: Microsoft
+    version: "10.0.22631.3593"
+    count: 15
+    owner: it
+    exposure: internal
+  - id: bastion-ssh
+    product: OpenSSH
+    vendor: OpenBSD
+    version: "9.6"
+    count: 2
+    owner: ops
+    exposure: internal
+  - id: bastion-fixed
+    product: OpenSSH
+    vendor: OpenBSD
+    version: "9.8p1"
+    count: 2
+    owner: ops
+    exposure: internal
+  - id: server-name-only
+    product: Windows Server 2022
+    vendor: Microsoft
+    version: "2022"
+    count: 6
+    owner: windows
+    exposure: internal
+  - id: custom-connector
+    product: Harbor Connector
+    vendor: Example Works
+    version: "1.4.0"
+    count: 4
+    owner: apps
+    exposure: internal

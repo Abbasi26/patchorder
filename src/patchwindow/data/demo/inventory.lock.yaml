@@ -1,0 +1,56 @@
+schema: patchwindow.lock/v1
+entries:
+  edge-proxy:
+    cpe: cpe:2.3:a:f5:nginx
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  edge-current:
+    cpe: cpe:2.3:a:f5:nginx
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  tls-library:
+    cpe: cpe:2.3:a:openssl:openssl
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  file-servers:
+    cpe: cpe:2.3:o:microsoft:windows_server_2022
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  file-servers-patched:
+    cpe: cpe:2.3:o:microsoft:windows_server_2022
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  analyst-laptops:
+    cpe: cpe:2.3:o:microsoft:windows_11_23h2
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  bastion-ssh:
+    cpe: cpe:2.3:a:openbsd:openssh
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  bastion-fixed:
+    cpe: cpe:2.3:a:openbsd:openssh
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  server-name-only:
+    cpe: cpe:2.3:o:microsoft:windows_server_2022
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned so the briefing can show a marketing name is not a build.

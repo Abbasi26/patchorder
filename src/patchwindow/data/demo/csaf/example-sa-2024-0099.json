@@ -1,0 +1,77 @@
+{
+  "document": {
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "distribution": {
+      "tlp": {
+        "label": "WHITE"
+      }
+    },
+    "lang": "en-US",
+    "notes": [
+      {
+        "category": "summary",
+        "text": "Fictional Example CERT advisory. It names a product and no version, so a matcher can treat it as a mention rather than proof that an installed build is affected.",
+        "title": "Summary"
+      }
+    ],
+    "publisher": {
+      "category": "coordinator",
+      "contact_details": "csaf@example.org",
+      "name": "Example CERT",
+      "namespace": "https://example.org/csaf"
+    },
+    "references": [
+      {
+        "category": "self",
+        "summary": "EXAMPLE-SA-2024-0099",
+        "url": "https://example.org/advisories/EXAMPLE-SA-2024-0099.json"
+      }
+    ],
+    "title": "Example: PHP named without a version",
+    "tracking": {
+      "current_release_date": "2024-01-26T00:00:00.000Z",
+      "id": "EXAMPLE-SA-2024-0099",
+      "initial_release_date": "2024-01-26T00:00:00.000Z",
+      "revision_history": [
+        {
+          "date": "2024-01-26T00:00:00.000Z",
+          "number": "1",
+          "summary": "Fictional initial release"
+        }
+      ],
+      "status": "final",
+      "version": "1"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "category": "vendor",
+        "name": "PHP Group",
+        "branches": [
+          {
+            "category": "product_name",
+            "name": "PHP",
+            "product": {
+              "name": "PHP",
+              "product_id": "EXAMPLE-PHP",
+              "product_identification_helper": {
+                "cpe": "cpe:/a:php:php:-"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2099-0001",
+      "product_status": {
+        "known_affected": ["EXAMPLE-PHP"]
+      },
+      "title": "Fictional issue in PHP, no version named"
+    }
+  ]
+}
