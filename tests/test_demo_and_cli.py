@@ -1,5 +1,8 @@
 import json
+import urllib.request
 from pathlib import Path
+
+import pytest
 
 from patchwindow.cli import main
 from patchwindow.engine import run_demo
@@ -169,5 +172,29 @@ def test_demo_epss_source_preserves_fixture_dates():
     for finding in scored:
         assert finding.epss_date == dates[finding.cve_id]
 
-# Skipped broader fixture provenance cleanup; tests were not run and files were not changed.
-# Risk: consumers comparing the exact source-label text will see a changed string.
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["demo"],
+        ["demo", "--format", "html"],
+        ["demo", "--format", "json"],
+        ["demo", "--llm-preview"],
+    ],
+    ids=["markdown", "html", "json", "llm-preview"],
+)
+def test_demo_attempts_no_http_without_output(args, tmp_path, monkeypatch, capsys):
+    attempts = []
+
+    def reject_http(*call_args, **call_kwargs):
+        # Record first because application error handling may catch the exception.
+        attempts.append((call_args, call_kwargs))
+        raise AssertionError("demo attempted HTTP")
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(urllib.request, "urlopen", reject_http)
+
+    assert main(args) == 0
+    assert attempts == []
+    assert capsys.readouterr().out.strip()
+    assert list(tmp_path.iterdir()) == []
