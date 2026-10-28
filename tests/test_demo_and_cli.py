@@ -184,7 +184,10 @@ def test_demo_epss_source_preserves_fixture_dates():
     ],
     ids=["markdown", "html", "json", "llm-preview"],
 )
-def test_demo_attempts_no_http_without_output(args, tmp_path, monkeypatch, capsys):
+@pytest.mark.parametrize("write_output", [False, True], ids=["stdout", "file"])
+def test_demo_attempts_no_http_and_writes_only_requested_output(
+    args, write_output, tmp_path, monkeypatch, capsys
+):
     attempts = []
 
     def reject_http(*call_args, **call_kwargs):
@@ -194,8 +197,16 @@ def test_demo_attempts_no_http_without_output(args, tmp_path, monkeypatch, capsy
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(urllib.request, "urlopen", reject_http)
+    output = tmp_path / "reports" / "briefing.txt"
+    command = args + ["--output", str(output)] if write_output else args
 
-    assert main(args) == 0
+    assert main(command) == 0
     assert attempts == []
-    assert capsys.readouterr().out.strip()
-    assert list(tmp_path.iterdir()) == []
+    captured = capsys.readouterr()
+    if write_output:
+        assert captured.out == ""
+        assert "CVE-2023-44487" in output.read_text(encoding="utf-8")
+        assert set(tmp_path.rglob("*")) == {output.parent, output}
+    else:
+        assert "CVE-2023-44487" in captured.out
+        assert list(tmp_path.iterdir()) == []
