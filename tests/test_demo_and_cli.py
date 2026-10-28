@@ -149,9 +149,10 @@ def test_offline_scan_without_cache_exits_3(tmp_path, monkeypatch, capsys):
     assert "offline mode" in captured.out + captured.err
 
 
-def test_examples_match_the_packaged_demo():
-    demo = ROOT / "src" / "patchwindow" / "data" / "demo" / "inventory.yaml"
-    example = ROOT / "examples" / "inventory.yaml"
+@pytest.mark.parametrize("filename", ["inventory.yaml", "inventory.lock.yaml"])
+def test_examples_match_the_packaged_demo(filename: str) -> None:
+    demo = ROOT / "src" / "patchwindow" / "data" / "demo" / filename
+    example = ROOT / "examples" / filename
     assert demo.read_text(encoding="utf-8") == example.read_text(encoding="utf-8")
 
 
