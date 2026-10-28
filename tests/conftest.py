@@ -12,3 +12,4 @@ def block_network(monkeypatch):
 
     monkeypatch.setattr(socket, "create_connection", explode)
     monkeypatch.setattr(socket.socket, "connect", explode)
+    monkeypatch.setattr(socket.socket, "connect_ex", explode)
