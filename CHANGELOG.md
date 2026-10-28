@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-10-28
 
 - `--fail-on kev|new|internet|priority:N` on `scan` and `demo` (repeatable). Exit 4 when a gate matches; the briefing is still printed.
 - `--format csv`: one row per finding, sorted by priority, with spreadsheet formula injection neutralized.

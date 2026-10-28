@@ -226,7 +226,7 @@ See [ROADMAP.md](ROADMAP.md), including issues that are a good first contributio
 
 ## Status
 
-Version 0.1.0, early but usable. Python package `patchorder` (CLI `patchorder`). MIT licensed. Every push runs the test suite in GitHub Actions (`.github/workflows/ci.yml`).
+Version 0.2.0, early but usable. Python package `patchorder` (CLI `patchorder`). MIT licensed. Every push runs the test suite in GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Install
 
