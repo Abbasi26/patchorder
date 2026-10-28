@@ -75,14 +75,36 @@ def _parser() -> argparse.ArgumentParser:
     scan.add_argument("--llm-preview", action="store_true", help="print the LLM body and do not send it")
     scan.set_defaults(func=cmd_scan)
 
+    inventory = sub.add_parser("inventory", help="check an inventory or import one from CSV (no network)")
+    inv_sub = inventory.add_subparsers(dest="inventory_command", required=True)
+    inv_check = inv_sub.add_parser("check", help="lint an inventory and show rows a scan cannot decide")
+    inv_check.add_argument("inventory", type=Path)
+    inv_check.add_argument("-l", "--lock", type=Path, help="lock file (default: next to the inventory)")
+    inv_check.add_argument("--strict", action="store_true", help="exit 4 on warnings too")
+    inv_check.set_defaults(func=cmd_inventory_check)
+    inv_csv = inv_sub.add_parser("from-csv", help="turn a CSV export into inventory YAML (printed unless --output)")
+    inv_csv.add_argument("csv", type=Path)
+    inv_csv.add_argument("--name", help="inventory name (default: the CSV file name)")
+    inv_csv.add_argument("--owner", default="unassigned", help="owner for rows without one")
+    inv_csv.add_argument("--exposure", choices=("internet", "internal"), default="internal", help="exposure for rows without one")
+    inv_csv.add_argument("--output", type=Path, help="write the YAML to this file")
+    inv_csv.set_defaults(func=cmd_inventory_from_csv)
+
     sources = sub.add_parser("sources", help="list the public endpoints (no request)")
     sources.set_defaults(func=cmd_sources)
     return parser
 
 
 def _format_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--format", choices=("md", "html", "json"), default="md")
+    parser.add_argument("--format", choices=("md", "html", "json", "csv"), default="md")
     parser.add_argument("--output", type=Path, help="write the briefing to this file")
+    parser.add_argument(
+        "--fail-on",
+        action="append",
+        default=[],
+        metavar="GATE",
+        help="exit 4 when a finding matches: kev, new (needs --state), internet, or priority:N (repeatable)",
+    )
 
 
 def _emit(text: str, output: Path | None) -> None:
@@ -98,7 +120,35 @@ def _client(args) -> HttpClient:
     return HttpClient(Cache(args.cache_dir), offline=args.offline, refresh=args.refresh)
 
 
+def _render(report, fmt: str) -> str:
+    if fmt == "csv":
+        from patchorder.csvout import render_csv
+
+        return render_csv(report)
+    return render(report, fmt)
+
+
+def _gates(args):
+    from patchorder.gate import parse_gate
+
+    return [parse_gate(item) for item in args.fail_on]
+
+
+def _apply_gates(report, gates) -> int:
+    if not gates:
+        return 0
+    from patchorder.gate import GATE_EXIT, evaluate_gates
+
+    tripped = evaluate_gates(report, gates)
+    for line in tripped:
+        print(f"gate: {line}", file=sys.stderr)
+    if not tripped:
+        print("gate: passed (" + ", ".join(g.label() for g in gates) + ")", file=sys.stderr)
+    return GATE_EXIT if tripped else 0
+
+
 def cmd_demo(args: argparse.Namespace) -> int:
+    gates = _gates(args)
     if getattr(args, "llm", False):
         raise PatchorderError(
             "demo mode does not call an LLM endpoint. Use --llm-preview to print the request body."
@@ -106,9 +156,9 @@ def cmd_demo(args: argparse.Namespace) -> int:
     report = run_demo()
     if args.llm_preview:
         report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHORDER_LLM_MODEL", "unset"))
-    _emit(render(report, args.format), args.output)
+    _emit(_render(report, args.format), args.output)
     print("patchorder demo: offline, fixtures recorded 2026-10-21", file=sys.stderr)
-    return 0
+    return _apply_gates(report, gates)
 
 
 def _parse_accept(items: list[str]) -> dict[str, LockEntry]:
@@ -203,6 +253,9 @@ def cmd_scan(args: argparse.Namespace) -> int:
     if args.llm and args.llm_preview:
         print("--llm-preview is set, so the endpoint is not called.", file=sys.stderr)
         args.llm = False
+    gates = _gates(args)
+    if any(g.kind == "new" for g in gates) and not args.state:
+        raise PatchorderError("--fail-on new needs --state with a previous run's state file", code=2)
     inventory = load_inventory(args.inventory)
     lock_path = args.lock
     if lock_path is None:
@@ -251,7 +304,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     except PatchorderError:
         raise
     _maybe_llm(args, report)
-    _emit(render(report, args.format), args.output)
+    _emit(_render(report, args.format), args.output)
     if args.save_state:
         ids = [finding.cve_id for finding in report.findings]
         args.save_state.parent.mkdir(parents=True, exist_ok=True)
@@ -259,7 +312,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
         print(f"wrote state {args.save_state} ({len(set(ids))} CVE ids)", file=sys.stderr)
     if args.offline and not report.findings and any("offline mode" in item for item in report.warnings):
         return 3
-    return 0
+    return _apply_gates(report, gates)
 
 
 def _maybe_llm(args, report) -> None:
@@ -297,6 +350,30 @@ def _maybe_llm(args, report) -> None:
         report.warnings.append(f"LLM summary failed: {exc}")
         return
     report.llm_summary = parse_chat_response(payload)
+
+
+def cmd_inventory_check(args: argparse.Namespace) -> int:
+    from patchorder.inventorytools import check_inventory
+
+    notes = check_inventory(args.inventory, args.lock)
+    counts = {"error": 0, "warning": 0, "info": 0}
+    for note in notes:
+        counts[note.level] += 1
+        print(f"{note.level:<7} {note.asset_id}: {note.text}")
+    print(f"{args.inventory}: {counts['warning']} warning(s), {counts['info']} note(s)")
+    return 4 if args.strict and counts["warning"] else 0
+
+
+def cmd_inventory_from_csv(args: argparse.Namespace) -> int:
+    from patchorder.inventorytools import csv_to_inventory
+
+    try:
+        text = args.csv.read_text(encoding="utf-8-sig")
+    except OSError as exc:
+        raise PatchorderError(f"cannot read {args.csv}: {exc}") from exc
+    yaml_text = csv_to_inventory(text, args.name or args.csv.stem, args.owner, args.exposure)
+    _emit(yaml_text, args.output)
+    return 0
 
 
 def cmd_sources(_args: argparse.Namespace) -> int:

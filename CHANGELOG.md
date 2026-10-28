@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- `--fail-on kev|new|internet|priority:N` on `scan` and `demo` (repeatable). Exit 4 when a gate matches; the briefing is still printed.
+- `--format csv`: one row per finding, sorted by priority, with spreadsheet formula injection neutralized.
+- `patchorder inventory check`: offline lint for rows a scan cannot decide, duplicates, zero counts, and orphaned lock pins. `--strict` exits 4 on warnings.
+- `patchorder inventory from-csv`: CSV export to inventory YAML with quoted versions and common header aliases.
+- CI on Python 3.11 to 3.13 with demo gate and inventory check smoke steps.
+- ROADMAP.md, issue forms, and a pull request template.
 - Renamed the project from `patchwindow` to `patchorder`: package, CLI, environment variables, files and docs. Entries below use the old name.
 
 ## 0.1.0 - 2026-10-21

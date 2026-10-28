@@ -18,3 +18,7 @@ python -m patchorder demo
 ```
 
 `python -m patchorder demo` must finish without contacting the network.
+
+## Where to start
+
+[ROADMAP.md](ROADMAP.md) lists good first issues. Bug reports and feature requests use the forms under `.github/ISSUE_TEMPLATE/`. Use the fictional Harbor Workshop inventory or `example.test` style names in issues, never a real inventory.

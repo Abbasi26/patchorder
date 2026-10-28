@@ -40,6 +40,37 @@ python -m patchorder demo --llm-preview
 
 `--llm-preview` prints the request body and does not send it. The body is CVE identifiers and description text only.
 
+### Start from a spreadsheet
+
+Most inventories already live in a CMDB export or a spreadsheet. Turn the CSV into inventory YAML, then lint it before the first scan:
+
+```bash
+python -m patchorder inventory from-csv hosts.csv --name "My estate" --output inventory.yaml
+python -m patchorder inventory check inventory.yaml
+```
+
+`from-csv` reads comma, semicolon, or tab separated files and understands common headers (`Software`, `Version`, `Hosts`, `Team`, `Exposed`, `Publisher`). Every version is written quoted, so `1.10` stays `1.10`. Nothing is written without `--output`.
+
+`inventory check` needs no network. It reports rows a scan cannot decide (a Windows marketing name such as `2022` instead of a build, no CPE candidate, an unpinned guess), duplicate rows, zero counts, and lock pins for ids that no longer exist. `--strict` exits 4 on warnings.
+
+### Gate a pipeline or a scheduled job
+
+```bash
+python -m patchorder scan -i inventory.yaml --fail-on kev --fail-on priority:70
+python -m patchorder scan -i inventory.yaml --state .patchorder/state.json --save-state --fail-on new
+python -m patchorder demo --fail-on kev    # exits 4: nginx 1.25.2 is affected by a KEV-listed CVE
+```
+
+The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
+
+### Findings as CSV
+
+```bash
+python -m patchorder demo --format csv --output findings.csv
+```
+
+One row per finding, sorted by priority, with KEV, EPSS, CVSS, the fixed-version hint, the CPE, and whether it is new since the last run. Cells that start with `=`, `+`, `-`, or `@` are prefixed with `'` so a spreadsheet does not run them as formulas.
+
 ## Real usage
 
 Copy `examples/inventory.yaml`. Quote versions. YAML will read an unquoted `1.10` as `1.1`.
@@ -183,7 +214,7 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-Pytest blocks sockets. CI runs the same suite on Python 3.11 and 3.12 (`.github/workflows/ci.yml`).
+Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
 
 ## How to contribute
 
@@ -191,14 +222,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Roadmap
 
-Not in 0.1, and not claimed:
-
-- A maintained CPE alias table, and a way to share pins, beyond the starter list
-- Windows KB article to build mapping. v0.1 understands `10.0.<build>.<ubr>`, not a KB number
-- Incremental CERT-Bund CSAF via the ROLIE changes feed, instead of `--csaf` files you downloaded
-- CycloneDX or SPDX input
-- RPM, Maven, and Debian version schemes. Semver-like strings, letter suffixes, and Windows builds are what v0.1 compares
-- More than the first page of Vulnerability-Lookup `cpesearch`, and more than `--max-pages` of NVD
+See [ROADMAP.md](ROADMAP.md), including issues that are a good first contribution.
 
 ## Status
 
@@ -220,6 +244,8 @@ patchorder ist ein lokales Kommandozeilenwerkzeug. Es beantwortet die Frage, wel
 
 Die Datei nennt Produkt, Hersteller, Version, Anzahl, Besitzer und ob das System aus dem Internet erreichbar ist. Das Werkzeug schlägt CPE-Kandidaten mit einem Vertrauenswert vor. Die richtige CPE wird in einer Lock-Datei festgehalten. Danach entscheidet ein lokaler Versionsvergleich über betroffen, nicht betroffen oder nicht entscheidbar. Windows-Builds wie `10.0.22631.4037` werden als vier Zahlen verglichen. Ein Marketingname wie `2022` reicht dafür nicht.
 
-Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und einem versionsscharfen CSAF-Treffer zusammen. Jede Zeile zeigt die Rechnung. Das Briefing kommt als Markdown, HTML oder JSON und nennt die nächsten Schritte, neue Funde seit dem letzten Lauf, Hinweise auf behobene Versionen und Links zu den Quellen.
+Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und einem versionsscharfen CSAF-Treffer zusammen. Jede Zeile zeigt die Rechnung. Das Briefing kommt als Markdown, HTML, JSON oder CSV und nennt die nächsten Schritte, neue Funde seit dem letzten Lauf, Hinweise auf behobene Versionen und Links zu den Quellen.
 
 Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchorder demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.
+
+Neu in 0.2: `inventory from-csv` macht aus einem CSV-Export ein Inventar, `inventory check` prüft es offline, und `--fail-on kev|new|internet|priority:N` beendet einen CI- oder Nachtlauf mit Exit-Code 4, wenn ein passender Fund auftaucht.
