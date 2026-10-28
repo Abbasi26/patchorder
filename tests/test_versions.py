@@ -1,4 +1,4 @@
-from patchwindow.versions import compare_versions, version_is_comparable, windows_build_comparable
+from patchorder.versions import compare_versions, version_is_comparable, windows_build_comparable
 
 
 def test_numeric_order_and_padding():

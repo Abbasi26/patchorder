@@ -1,6 +1,6 @@
 {
   "recorded": "2026-10-21",
-  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchwindow fixture), not copies of published advisories. The KEV vulnerabilities array contains 1 of the catalog's published entries.",
+  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchorder fixture), not copies of published advisories. The KEV vulnerabilities array contains 1 of the catalog's published entries.",
   "sources": {
     "nvd_cve": "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=",
     "epss": "https://api.first.org/data/v1/epss",

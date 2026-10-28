@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from patchwindow.errors import PatchwindowError
+from patchorder.errors import PatchorderError
 
 
 def cache_key(url: str) -> str:
@@ -32,7 +32,7 @@ class Cache:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            raise PatchwindowError(f"cache entry is unreadable ({path.name}). Delete {self.root} or pass --refresh.") from exc
+            raise PatchorderError(f"cache entry is unreadable ({path.name}). Delete {self.root} or pass --refresh.") from exc
         fetched = float(payload.get("fetched_at") or 0)
         current = time.time() if now is None else now
         if ttl_seconds >= 0 and current - fetched > ttl_seconds:

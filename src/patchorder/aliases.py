@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from patchwindow.models import Asset, Candidate
-from patchwindow.normalize import normalize, tokens
+from patchorder.models import Asset, Candidate
+from patchorder.normalize import normalize, tokens
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,5 @@
 {
-  "schema": "patchwindow.state/v1",
+  "schema": "patchorder.state/v1",
   "generated_at": "2026-10-20T06:00:00+00:00",
   "cve_ids": ["CVE-2024-0727", "CVE-2024-6387"]
 }

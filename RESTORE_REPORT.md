@@ -1,15 +1,15 @@
-# RESTORE_REPORT — patchorder (project: patchwindow)
+# RESTORE_REPORT — patchorder (project: patchorder)
 
-- **GitHub repo:** `Abbasi26/patchorder` (project name in code/README remains **patchwindow**)
+- **GitHub repo:** `Abbasi26/patchorder` (project name in code/README remains **patchorder**)
 - **Transcript:** `bc-a2581c5a-befb-5e27-9856-6a36406478c8`
 - **Local path:** `/workspace/restore/patchorder` (branch `main`)
-- **Author:** Wasaf Abbasi `<95940455+Abbasi26@users.noreply.github.com>`
+- **Author:** Wasaf Abbasi
 - **Ready to push:** yes (local commits only; no push performed)
 - **Commits:** `ab4d0ea` (tree restore), `0db9483` (demo fixtures)
 
 ## What came from the transcript
 
-- Full source tree under `src/patchwindow/`, tests, docs (`README`, `LICENSE`, `CHANGELOG`, `CONTRIBUTING`, `SECURITY`), `pyproject.toml`, CI workflow, `.gitignore`, `MANIFEST.in`
+- Full source tree under `src/patchorder/`, tests, docs (`README`, `LICENSE`, `CHANGELOG`, `CONTRIBUTING`, `SECURITY`), `pyproject.toml`, CI workflow, `.gitignore`, `MANIFEST.in`
 - Reconstructed by replaying 80 `search_replace` diffs (newline-safe unified-diff applicator)
 - `SPEC.md` = original cloud-agent task prompt
 - Fictional CSAF demo docs (`example-sa-2024-0099.json`, `fixture-openssl.json`, Example CERT `provider-metadata.json`) from diffs
@@ -33,10 +33,10 @@ Removed real WID advisory that an early builder stage had copied; final agent st
 ## Tests
 
 - `pytest`: **42/42** pass (offline)
-- Demo: `python -m patchwindow demo` runs end-to-end offline
+- Demo: `python -m patchorder demo` runs end-to-end offline
 
 ## Gaps / notes
 
-- Homepage URL in `pyproject.toml` is still the placeholder `https://example.invalid/patchwindow` from the original agent
+- Homepage URL in `pyproject.toml` is still the placeholder `https://example.invalid/patchorder` from the original agent
 - EPSS scores in fixtures are from the restore-day FIRST API response (dates may differ from 2026-10-20 recording); matching tests still pass
 - No GitHub push (no write auth used); parent must push to `Abbasi26/patchorder`

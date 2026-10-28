@@ -1,5 +1,5 @@
-from patchwindow.models import Asset, LockEntry
-from patchwindow.resolver import AUTO_USE_CONFIDENCE, resolve_asset
+from patchorder.models import Asset, LockEntry
+from patchorder.resolver import AUTO_USE_CONFIDENCE, resolve_asset
 
 
 def _asset(**kwargs):

@@ -7,7 +7,7 @@ not version-aware (upstream issue 219); callers filter with the local matcher.
 
 from __future__ import annotations
 
-from patchwindow.models import EpssScore, KevCatalog, KevEntry, Record
+from patchorder.models import EpssScore, KevCatalog, KevEntry, Record
 
 
 def _cvss_from_nvd(metrics: dict) -> tuple[float | None, str | None, str | None]:

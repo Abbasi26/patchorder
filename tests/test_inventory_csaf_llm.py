@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from patchwindow.csaf import hits_for, load_csaf_document, load_csaf_path
-from patchwindow.errors import PatchwindowError
-from patchwindow.inventory import load_inventory
-from patchwindow.llm import build_messages, cve_texts
-from patchwindow.records import parse_kev, parse_nvd_cpe_hits
-from patchwindow.report import Finding
+from patchorder.csaf import hits_for, load_csaf_document, load_csaf_path
+from patchorder.errors import PatchorderError
+from patchorder.inventory import load_inventory
+from patchorder.llm import build_messages, cve_texts
+from patchorder.records import parse_kev, parse_nvd_cpe_hits
+from patchorder.report import Finding
 
-ROOT = Path(__file__).resolve().parents[1] / "src" / "patchwindow" / "data" / "demo"
+ROOT = Path(__file__).resolve().parents[1] / "src" / "patchorder" / "data" / "demo"
 
 
 def test_float_versions_are_rejected(tmp_path):
@@ -20,7 +20,7 @@ def test_float_versions_are_rejected(tmp_path):
         "    owner: ops\n    exposure: internet\n",
         encoding="utf-8",
     )
-    with pytest.raises(PatchwindowError, match="1.1"):
+    with pytest.raises(PatchorderError, match="1.1"):
         load_inventory(path)
 
 
@@ -31,7 +31,7 @@ def test_exposure_must_be_internet_or_internal(tmp_path):
         "    owner: ops\n    exposure: dmz\n",
         encoding="utf-8",
     )
-    with pytest.raises(PatchwindowError, match="exposure"):
+    with pytest.raises(PatchorderError, match="exposure"):
         load_inventory(path)
 
 

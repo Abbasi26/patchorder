@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from patchwindow.errors import PatchwindowError
+from patchorder.errors import PatchorderError
 
 _BASE = re.compile(r"^cpe:2\.3:([aho]):([^:]+):([^:]+)$", re.IGNORECASE)
 
@@ -51,18 +51,18 @@ def parse_cpe(value: str) -> CpeIdentity:
     if text.lower().startswith("cpe:/"):
         bits = text[5:].split(":")
         if len(bits) < 3 or bits[0].lower() not in {"a", "o", "h"}:
-            raise PatchwindowError(f"not a CPE name: {value}")
+            raise PatchorderError(f"not a CPE name: {value}")
         version = bits[3] if len(bits) > 3 and bits[3] else "*"
         return CpeIdentity(bits[0], bits[1] or "*", bits[2] or "*", version, "*")
     if text.lower().startswith("cpe:2.3:"):
         bits = _split_cpe23(text)
         # cpe, 2.3, part, vendor, product, version, update, ...
         if len(bits) < 5 or bits[2].lower() not in {"a", "o", "h"}:
-            raise PatchwindowError(f"not a CPE 2.3 name: {value}")
+            raise PatchorderError(f"not a CPE 2.3 name: {value}")
         version = bits[5] if len(bits) > 5 and bits[5] else "*"
         update = bits[6] if len(bits) > 6 and bits[6] else "*"
         return CpeIdentity(bits[2], bits[3], bits[4], version, update)
-    raise PatchwindowError(f"not a CPE name: {value}")
+    raise PatchorderError(f"not a CPE name: {value}")
 
 
 def canonical_base(value: str) -> str:
@@ -75,11 +75,11 @@ def with_version(base: str, version: str) -> str:
     OpenSSH 9.8p1 is queried as version 9.8. The local matcher still applies the
     p-suffix, so a hit can be dropped and a miss is not invented.
     """
-    from patchwindow.versions import split_portable_update
+    from patchorder.versions import split_portable_update
 
     identity = parse_cpe(base)
     numeric, update = split_portable_update(version)
     queried = numeric if update else version.strip()
     if re.search(r"[\s:]", queried) or not queried:
-        raise PatchwindowError(f"cannot put version {version!r} into a CPE name")
+        raise PatchorderError(f"cannot put version {version!r} into a CPE name")
     return f"cpe:2.3:{identity.part}:{identity.vendor}:{identity.product}:{queried}:*:*:*:*:*:*:*"

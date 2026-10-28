@@ -8,11 +8,11 @@ from __future__ import annotations
 import os
 from urllib.parse import quote, urlsplit, urlunsplit, parse_qsl, urlencode
 
-from patchwindow.cpe import parse_cpe, with_version
-from patchwindow.errors import PatchwindowError
-from patchwindow.httpclient import HttpClient
-from patchwindow.models import KevCatalog, Record, Resolution
-from patchwindow.records import (
+from patchorder.cpe import parse_cpe, with_version
+from patchorder.errors import PatchorderError
+from patchorder.httpclient import HttpClient
+from patchorder.models import KevCatalog, Record, Resolution
+from patchorder.records import (
     dedupe_records,
     parse_epss,
     parse_kev,
@@ -20,7 +20,7 @@ from patchwindow.records import (
     parse_nvd_cve_page,
     parse_vulnerability_lookup,
 )
-from patchwindow.versions import version_is_comparable
+from patchorder.versions import version_is_comparable
 
 NVD_CVES = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 NVD_CPES = "https://services.nvd.nist.gov/rest/json/cpes/2.0"
@@ -112,7 +112,7 @@ class LiveFetcher:
             try:
                 records.extend(self._nvd_cves(cpe, version, warnings))
                 queried.append(f"NVD cpeName {with_version(cpe, version)}")
-            except PatchwindowError as exc:
+            except PatchorderError as exc:
                 warnings.append(str(exc))
             if cpe not in seen_product:
                 seen_product.add(cpe)
@@ -120,7 +120,7 @@ class LiveFetcher:
                     extra = self._vulnlookup(cpe, warnings)
                     records.extend(extra)
                     queried.append(f"Vulnerability-Lookup cpesearch {cpe} ({len(extra)} records before version filtering)")
-                except PatchwindowError as exc:
+                except PatchorderError as exc:
                     warnings.append(str(exc))
         return dedupe_records(records), warnings, queried
 

@@ -9,9 +9,9 @@ import urllib.request
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
-from patchwindow import __version__
-from patchwindow.cache import Cache
-from patchwindow.errors import PatchwindowError
+from patchorder import __version__
+from patchorder.cache import Cache
+from patchorder.errors import PatchorderError
 
 # Public NVD limit without a key is 5 requests per 30 seconds. Vulnerability-Lookup
 # anonymous limit is 20 per minute. Stay under both.
@@ -36,8 +36,8 @@ TTL_SECONDS = {
 def user_agent(contact: str | None = None) -> str:
     import os
 
-    who = contact or os.environ.get("PATCHWINDOW_CONTACT") or "local; no telemetry"
-    return f"patchwindow/{__version__} ({who})"
+    who = contact or os.environ.get("PATCHORDER_CONTACT") or "local; no telemetry"
+    return f"patchorder/{__version__} ({who})"
 
 
 @dataclass
@@ -109,13 +109,13 @@ class HttpClient:
             if cached is not None:
                 return cached
         if self.offline:
-            raise PatchwindowError(
+            raise PatchorderError(
                 f"offline mode has no cached response for {url.split('?')[0]}",
                 code=3,
             )
         payload, _status = self._fetch(url)
         if not isinstance(payload, dict):
-            raise PatchwindowError(f"response was not a JSON object from {urlsplit(url).netloc}")
+            raise PatchorderError(f"response was not a JSON object from {urlsplit(url).netloc}")
         self.cache.put(url, payload)
         return payload
 
@@ -125,10 +125,10 @@ class HttpClient:
         self.calls += 1
         try:
             result = self.opener(url, headers)
-        except PatchwindowError:
+        except PatchorderError:
             raise
         except Exception as exc:
-            raise PatchwindowError(f"request failed for {urlsplit(url).netloc}: {exc}") from exc
+            raise PatchorderError(f"request failed for {urlsplit(url).netloc}: {exc}") from exc
         if result.status == 429 and not retried:
             retry = result.headers.get("retry-after", "30")
             try:
@@ -140,11 +140,11 @@ class HttpClient:
         if result.status == 404:
             return {}, 404
         if result.status != 200:
-            raise PatchwindowError(f"{urlsplit(url).netloc} returned HTTP {result.status}")
+            raise PatchorderError(f"{urlsplit(url).netloc} returned HTTP {result.status}")
         try:
             payload = json.loads(result.body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise PatchwindowError(f"response from {urlsplit(url).netloc} was not JSON") from exc
+            raise PatchorderError(f"response from {urlsplit(url).netloc} was not JSON") from exc
         if not isinstance(payload, dict):
-            raise PatchwindowError(f"response from {urlsplit(url).netloc} was not a JSON object")
+            raise PatchorderError(f"response from {urlsplit(url).netloc} was not a JSON object")
         return payload, result.status

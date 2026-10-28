@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "patchwindow"
+name = "patchorder"
 version = "0.1.0"
 description = "Which CVEs apply to the versions in a local inventory, and what to patch first."
 readme = "README.md"
@@ -17,7 +17,7 @@ dependencies = ["PyYAML>=6.0.1,<7"]
 dev = ["pytest>=8.0"]
 
 [project.scripts]
-patchwindow = "patchwindow.cli:main"
+patchorder = "patchorder.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Abbasi26/patchorder"
@@ -26,7 +26,7 @@ Homepage = "https://github.com/Abbasi26/patchorder"
 where = ["src"]
 
 [tool.setuptools.package-data]
-patchwindow = ["data/demo/**/*", "data/demo/**/**/*"]
+patchorder = ["data/demo/**/*", "data/demo/**/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

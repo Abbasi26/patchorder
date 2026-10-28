@@ -5,14 +5,14 @@
     "title": "Fixture advisory for OpenSSL PKCS#12. Not an official CERT-Bund advisory.",
     "publisher": {
       "category": "other",
-      "name": "patchwindow fixture",
-      "namespace": "https://example.invalid/patchwindow"
+      "name": "patchorder fixture",
+      "namespace": "https://example.invalid/patchorder"
     },
     "references": [
       {
         "category": "self",
-        "summary": "patchwindow fixture",
-        "url": "https://example.invalid/patchwindow/FIXTURE-SA-2024-0001"
+        "summary": "patchorder fixture",
+        "url": "https://example.invalid/patchorder/FIXTURE-SA-2024-0001"
       }
     ],
     "tracking": {

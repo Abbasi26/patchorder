@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from patchwindow.cli import main
-from patchwindow.engine import run_demo
-from patchwindow.llm import cve_texts, preview_json
+from patchorder.cli import main
+from patchorder.engine import run_demo
+from patchorder.llm import cve_texts, preview_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -69,12 +69,12 @@ def test_demo_html_and_json(tmp_path, monkeypatch, capsys):
     html_path = tmp_path / "brief.html"
     assert main(["demo", "--format", "html", "--output", str(html_path)]) == 0
     html = html_path.read_text(encoding="utf-8")
-    assert "<h1>patchwindow briefing</h1>" in html
+    assert "<h1>patchorder briefing</h1>" in html
     assert "CVE-2023-44487" in html
     assert "<script>" not in html
     assert main(["demo", "--format", "json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert payload["tool"] == "patchwindow"
+    assert payload["tool"] == "patchorder"
     assert payload["read_only"] is True
     assert payload["top_actions"][0]["cve_id"] == "CVE-2023-44487"
     assert "exploited in the wild" in payload["top_actions"][0]["text"]
@@ -126,7 +126,7 @@ def test_offline_scan_without_cache_exits_3(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     inventory = tmp_path / "inventory.yaml"
     inventory.write_text(
-        "schema: patchwindow.inventory/v1\n"
+        "schema: patchorder.inventory/v1\n"
         "name: Example\n"
         "assets:\n"
         "  - id: edge\n"
@@ -140,7 +140,7 @@ def test_offline_scan_without_cache_exits_3(tmp_path, monkeypatch, capsys):
     )
     lock = tmp_path / "inventory.lock.yaml"
     lock.write_text(
-        "schema: patchwindow.lock/v1\nentries:\n  edge:\n    cpe: cpe:2.3:a:f5:nginx\n    pinned: true\n",
+        "schema: patchorder.lock/v1\nentries:\n  edge:\n    cpe: cpe:2.3:a:f5:nginx\n    pinned: true\n",
         encoding="utf-8",
     )
     code = main(["scan", "-i", str(inventory), "-l", str(lock), "--offline", "--no-discover-cpes", "--format", "json"])
@@ -151,7 +151,7 @@ def test_offline_scan_without_cache_exits_3(tmp_path, monkeypatch, capsys):
 
 @pytest.mark.parametrize("filename", ["inventory.yaml", "inventory.lock.yaml"])
 def test_examples_match_the_packaged_demo(filename: str) -> None:
-    demo = ROOT / "src" / "patchwindow" / "data" / "demo" / filename
+    demo = ROOT / "src" / "patchorder" / "data" / "demo" / filename
     example = ROOT / "examples" / filename
     assert demo.read_text(encoding="utf-8") == example.read_text(encoding="utf-8")
 
@@ -163,7 +163,7 @@ def test_demo_epss_source_preserves_fixture_dates():
     ]
 
     payload = json.loads(
-        (ROOT / "src" / "patchwindow" / "data" / "demo" / "epss.json").read_text(
+        (ROOT / "src" / "patchorder" / "data" / "demo" / "epss.json").read_text(
             encoding="utf-8"
         )
     )

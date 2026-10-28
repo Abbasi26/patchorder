@@ -9,8 +9,8 @@ from __future__ import annotations
 import json
 from urllib.parse import urlsplit
 
-from patchwindow.errors import PatchwindowError
-from patchwindow.report import Finding
+from patchorder.errors import PatchorderError
+from patchorder.report import Finding
 
 _MAX_CVES = 20
 _MAX_CHARS = 1200
@@ -67,9 +67,9 @@ def preview_json(texts: list[tuple[str, str]], model: str) -> str:
 def chat_url(base_url: str) -> str:
     parsed = urlsplit(base_url.strip())
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise PatchwindowError("PATCHWINDOW_LLM_BASE_URL must be an http or https URL")
+        raise PatchorderError("PATCHORDER_LLM_BASE_URL must be an http or https URL")
     if parsed.username or parsed.password:
-        raise PatchwindowError("put the API key in PATCHWINDOW_LLM_API_KEY, not in the URL")
+        raise PatchorderError("put the API key in PATCHORDER_LLM_API_KEY, not in the URL")
     path = parsed.path.rstrip("/")
     if not path.endswith("/chat/completions"):
         path = path + "/chat/completions"
@@ -80,7 +80,7 @@ def parse_chat_response(payload: dict) -> str:
     try:
         content = payload["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
-        raise PatchwindowError("LLM endpoint returned an unexpected body") from exc
+        raise PatchorderError("LLM endpoint returned an unexpected body") from exc
     if not isinstance(content, str) or not content.strip():
-        raise PatchwindowError("LLM endpoint returned an empty summary")
+        raise PatchorderError("LLM endpoint returned an empty summary")
     return content.strip()

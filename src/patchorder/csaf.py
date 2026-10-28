@@ -12,10 +12,10 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from patchwindow.cpe import parse_cpe
-from patchwindow.errors import PatchwindowError
-from patchwindow.normalize import phrase_in, tokens
-from patchwindow.versions import compare_versions
+from patchorder.cpe import parse_cpe
+from patchorder.errors import PatchorderError
+from patchorder.normalize import phrase_in, tokens
+from patchorder.versions import compare_versions
 
 
 @dataclass
@@ -73,7 +73,7 @@ def _walk(branch: dict, products: dict[str, CsafProduct], version: str | None) -
         if cpe:
             try:
                 parsed = parse_cpe(cpe)
-            except PatchwindowError:
+            except PatchorderError:
                 parsed = None
             if parsed and parsed.version not in {"*", "-", ""}:
                 product_version = parsed.version
@@ -91,9 +91,9 @@ def load_csaf_document(path: Path) -> CsafAdvisory:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise PatchwindowError(f"cannot read CSAF {path}: {exc}") from exc
+        raise PatchorderError(f"cannot read CSAF {path}: {exc}") from exc
     if not isinstance(data, dict) or "document" not in data:
-        raise PatchwindowError(f"{path} is not a CSAF document")
+        raise PatchorderError(f"{path} is not a CSAF document")
     document = data.get("document") or {}
     tracking = document.get("tracking") or {}
     publisher = document.get("publisher") or {}
@@ -145,7 +145,7 @@ def load_csaf_path(path: Path) -> list[CsafAdvisory]:
     if path.is_file():
         return [load_csaf_document(path)]
     if not path.is_dir():
-        raise PatchwindowError(f"CSAF path not found: {path}")
+        raise PatchorderError(f"CSAF path not found: {path}")
     found: list[CsafAdvisory] = []
     for item in sorted(path.glob("*.json")):
         if item.name == "provider-metadata.json":
@@ -160,7 +160,7 @@ def _product_applies(product: CsafProduct, cpe_base: str, version: str, asset_pr
     if product.cpe:
         try:
             parsed = parse_cpe(product.cpe)
-        except PatchwindowError:
+        except PatchorderError:
             parsed = None
         if parsed and parsed.same_product(wanted):
             if parsed.version in {"*", "-", ""} and not product.version:

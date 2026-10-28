@@ -9,10 +9,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from patchwindow.cpe import CpeIdentity, parse_cpe
-from patchwindow.models import Record
-from patchwindow.normalize import phrase_in, tokens
-from patchwindow.versions import (
+from patchorder.cpe import CpeIdentity, parse_cpe
+from patchorder.models import Record
+from patchorder.normalize import phrase_in, tokens
+from patchorder.versions import (
     compare_versions,
     in_bounds,
     is_windows_product,

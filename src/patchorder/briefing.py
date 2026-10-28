@@ -6,7 +6,7 @@ import html
 import json
 from collections import OrderedDict
 
-from patchwindow.report import Finding, Report
+from patchorder.report import Finding, Report
 
 
 def _action(finding: Finding, extra: int) -> str:
@@ -76,7 +76,7 @@ def _md_finding(finding: Finding) -> str:
 def render_markdown(report: Report) -> str:
     mode = "demo, no network" if report.mode == "demo" else report.mode
     lines = [
-        "# patchwindow briefing",
+        "# patchorder briefing",
         "",
         f"{report.name}. Generated {report.generated_at}. Mode: {mode}.",
         "",
@@ -140,7 +140,7 @@ def render_markdown(report: Report) -> str:
     if not unresolved:
         lines.append("Every entry had a CPE pin or a candidate above the auto-use line.")
     else:
-        lines.append("These entries were not queried. Pin a CPE with `patchwindow resolve --write`.")
+        lines.append("These entries were not queried. Pin a CPE with `patchorder resolve --write`.")
         lines.append("")
         for note in unresolved:
             lines.append(f"- {note.asset_id} ({note.product} {note.version}): {note.text}")
@@ -241,7 +241,7 @@ def render_html(report: Report) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>patchwindow briefing</title>
+<title>patchorder briefing</title>
 <style>
 body {{ margin: 0; background: #f4f0e6; color: #1c1915; font: 17px/1.5 Palatino, "Iowan Old Style", Georgia, serif; }}
 main {{ max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }}
@@ -258,7 +258,7 @@ a {{ color: #1f4e3d; }}
 </head>
 <body>
 <main>
-<h1>patchwindow briefing</h1>
+<h1>patchorder briefing</h1>
 <p class="meta">{esc(report.name)}. Generated {esc(report.generated_at)}. Mode: {esc(mode)}.</p>
 <p>This run is read-only. Nothing was changed on the systems in the inventory.</p>
 <h2>Top actions</h2>
@@ -316,7 +316,7 @@ def render_json(report: Report) -> str:
         for finding, extra in _top_actions(report)
     ]
     payload = {
-        "tool": "patchwindow",
+        "tool": "patchorder",
         "generated_at": report.generated_at,
         "mode": report.mode,
         "read_only": True,

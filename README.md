@@ -1,8 +1,10 @@
-# patchwindow
+# patchorder
+
+[![CI](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml)
 
 Which public CVEs apply to the versions in a local inventory, and what to patch first.
 
-You keep a short YAML file: product, vendor, version, how many hosts, who owns them, and whether they face the internet. patchwindow maps each row to CPE candidates, you pin the right one, and it decides affected / not affected / not decided from the published version ranges. The briefing ranks the work. It does not scan a network and it does not install updates.
+You keep a short YAML file: product, vendor, version, how many hosts, who owns them, and whether they face the internet. patchorder maps each row to CPE candidates, you pin the right one, and it decides affected / not affected / not decided from the published version ranges. The briefing ranks the work. It does not scan a network and it does not install updates.
 
 ## The problem
 
@@ -26,14 +28,14 @@ Python 3.11 or newer.
 
 ```bash
 python -m pip install -e .
-python -m patchwindow demo
+python -m patchorder demo
 ```
 
 `demo` reads bundled fixtures recorded on 2026-10-21 and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
 
 ```bash
-python -m patchwindow demo --format html --output briefing.html
-python -m patchwindow demo --llm-preview
+python -m patchorder demo --format html --output briefing.html
+python -m patchorder demo --llm-preview
 ```
 
 `--llm-preview` prints the request body and does not send it. The body is CVE identifiers and description text only.
@@ -43,7 +45,7 @@ python -m patchwindow demo --llm-preview
 Copy `examples/inventory.yaml`. Quote versions. YAML will read an unquoted `1.10` as `1.1`.
 
 ```yaml
-schema: patchwindow.inventory/v1
+schema: patchorder.inventory/v1
 name: Harbor Workshop (fictional)
 assets:
   - id: edge-proxy
@@ -60,14 +62,14 @@ assets:
 See the candidates, then pin the CPE you mean. Pinning is a write, so it requires `--write`. The proposed lock file is printed first.
 
 ```bash
-python -m patchwindow resolve -i inventory.yaml --offline --no-discover-cpes
-python -m patchwindow resolve -i inventory.yaml --write --accept edge-proxy=cpe:2.3:a:f5:nginx
+python -m patchorder resolve -i inventory.yaml --offline --no-discover-cpes
+python -m patchorder resolve -i inventory.yaml --write --accept edge-proxy=cpe:2.3:a:f5:nginx
 ```
 
 In a terminal, `resolve` asks you to pick a number. A lock file looks like this:
 
 ```yaml
-schema: patchwindow.lock/v1
+schema: patchorder.lock/v1
 entries:
   edge-proxy:
     cpe: cpe:2.3:a:f5:nginx
@@ -78,10 +80,10 @@ entries:
 The lock stores vendor and product, not the version. The version stays in the inventory and is compared on every run.
 
 ```bash
-python -m patchwindow scan -i inventory.yaml -l inventory.lock.yaml --format md
-python -m patchwindow scan -i inventory.yaml --state previous.json --save-state .patchwindow/state.json
-python -m patchwindow scan -i inventory.yaml --offline
-python -m patchwindow scan -i inventory.yaml --csaf ./advisories --pinned-only
+python -m patchorder scan -i inventory.yaml -l inventory.lock.yaml --format md
+python -m patchorder scan -i inventory.yaml --state previous.json --save-state .patchorder/state.json
+python -m patchorder scan -i inventory.yaml --offline
+python -m patchorder scan -i inventory.yaml --csaf ./advisories --pinned-only
 ```
 
 A live scan calls, per pinned product version:
@@ -91,15 +93,15 @@ A live scan calls, per pinned product version:
 - the CISA KEV JSON catalog, once
 - the FIRST EPSS API, in batches of 100
 
-Responses are cached under `.patchwindow/cache`. NVD requests are spaced 6.5 seconds apart (5 requests per 30 seconds without a key). Vulnerability-Lookup requests are spaced 3.5 seconds apart (anonymous limit 20 per minute). Set `NVD_API_KEY` to raise the NVD limit. The key is not written into the cache. `--refresh` ignores cache age. `--offline` uses the cache only and exits 3 when a chosen CPE has no cached vulnerability records.
+Responses are cached under `.patchorder/cache`. NVD requests are spaced 6.5 seconds apart (5 requests per 30 seconds without a key). Vulnerability-Lookup requests are spaced 3.5 seconds apart (anonymous limit 20 per minute). Set `NVD_API_KEY` to raise the NVD limit. The key is not written into the cache. `--refresh` ignores cache age. `--offline` uses the cache only and exits 3 when a chosen CPE has no cached vulnerability records.
 
 NVD returns matches oldest-first, at most 2000 per page. `--max-pages` defaults to 2, which covers a product version with up to 4000 matching CVEs (a current Windows Server 2022 build is in that range). Above that, the run keeps the oldest page, the newest page, and every match NVD marks `hasKev`, and the briefing says the middle was not loaded.
 
 CPE discovery (`resolve` and unpinned rows during `scan`) also queries the NVD CPE dictionary. `--no-discover-cpes` keeps the local alias table only. A candidate at or above 0.85 is used and labeled unconfirmed. Below that, the row is not queried. `--pinned-only` queries pins and nothing else.
 
-`--csaf` reads CSAF 2.0 files you already have (one file or a directory of JSON). CERT-Bund publishes those documents at <https://wid.cert-bund.de/.well-known/csaf/>. patchwindow does not download that feed: the WID index is tens of megabytes. `--csaf-provider` fetches only the small provider-metadata document and prints the TLP:WHITE feed URLs. A CSAF product id adds priority points only when the document names the installed version. A product name with no version is a mention, not an "affected" decision.
+`--csaf` reads CSAF 2.0 files you already have (one file or a directory of JSON). CERT-Bund publishes those documents at <https://wid.cert-bund.de/.well-known/csaf/>. patchorder does not download that feed: the WID index is tens of megabytes. `--csaf-provider` fetches only the small provider-metadata document and prints the TLP:WHITE feed URLs. A CSAF product id adds priority points only when the document names the installed version. A product name with no version is a mention, not an "affected" decision.
 
-`python -m patchwindow sources` lists the endpoints and does not contact them.
+`python -m patchorder sources` lists the endpoints and does not contact them.
 
 ### Priority points
 
@@ -121,11 +123,11 @@ Every finding prints its arithmetic. The maximum is 105.
 Off unless you pass `--llm`. Any OpenAI-compatible `POST /chat/completions` endpoint works, including a local one.
 
 ```bash
-export PATCHWINDOW_LLM_BASE_URL=http://127.0.0.1:11434/v1
-export PATCHWINDOW_LLM_MODEL=llama3.1
-export PATCHWINDOW_LLM_API_KEY=   # optional; do not put the key in the URL
-python -m patchwindow scan -i inventory.yaml --llm-preview
-python -m patchwindow scan -i inventory.yaml --llm
+export PATCHORDER_LLM_BASE_URL=http://127.0.0.1:11434/v1
+export PATCHORDER_LLM_MODEL=llama3.1
+export PATCHORDER_LLM_API_KEY=   # optional; do not put the key in the URL
+python -m patchorder scan -i inventory.yaml --llm-preview
+python -m patchorder scan -i inventory.yaml --llm
 ```
 
 The JSON body contains CVE identifiers and description text, capped at 20 CVEs and 1200 characters each. It does not contain the inventory. `--llm-preview` prints the body and does not send it. `demo` refuses `--llm` for the same reason: demo mode does not call an endpoint. If the endpoint fails, the local briefing is still produced and the failure is a warning.
@@ -155,7 +157,7 @@ Writes happen only when you ask:
 | `--output` | the briefing |
 | `--write` on `resolve` | the lock file, after printing it |
 | `--save-state` | the CVE ids in this run, so the next run can say what is new |
-| cache files | HTTP responses under `--cache-dir` (default `.patchwindow/cache`) during a live run |
+| cache files | HTTP responses under `--cache-dir` (default `.patchorder/cache`) during a live run |
 
 `demo` writes nothing unless you pass `--output`.
 
@@ -172,7 +174,7 @@ Aggregation is a solved problem. The gap is the inventory and the version decisi
 | [osv-scanner](https://github.com/google/osv-scanner) | Lockfiles, containers, and SBOMs. | Not a Windows or appliance inventory. |
 | [Greenbone Community Edition](https://github.com/greenbone/openvas-scanner) | Network and authenticated scanning. | The opposite of an inventory file. It needs access to the hosts. |
 
-patchwindow does not re-host those datasets. A live run asks the public APIs and caches the answers.
+patchorder does not re-host those datasets. A live run asks the public APIs and caches the answers.
 
 ## Tests
 
@@ -198,16 +200,26 @@ Not in 0.1, and not claimed:
 - RPM, Maven, and Debian version schemes. Semver-like strings, letter suffixes, and Windows builds are what v0.1 compares
 - More than the first page of Vulnerability-Lookup `cpesearch`, and more than `--max-pages` of NVD
 
+## Status
+
+Version 0.1.0, early but usable. Python package `patchorder` (CLI `patchorder`). MIT licensed. Every push runs the test suite in GitHub Actions (`.github/workflows/ci.yml`).
+
+## Install
+
+```sh
+pip install .
+```
+
 ## License
 
 MIT. Copyright 2026 Wasaf Abbasi.
 
 ## Kurzfassung (Deutsch)
 
-patchwindow ist ein lokales Kommandozeilenwerkzeug. Es beantwortet die Frage, welche öffentlichen Schwachstellen die Versionen in einer Inventardatei wirklich betreffen und was zuerst gepatcht werden sollte.
+patchorder ist ein lokales Kommandozeilenwerkzeug. Es beantwortet die Frage, welche öffentlichen Schwachstellen die Versionen in einer Inventardatei wirklich betreffen und was zuerst gepatcht werden sollte.
 
 Die Datei nennt Produkt, Hersteller, Version, Anzahl, Besitzer und ob das System aus dem Internet erreichbar ist. Das Werkzeug schlägt CPE-Kandidaten mit einem Vertrauenswert vor. Die richtige CPE wird in einer Lock-Datei festgehalten. Danach entscheidet ein lokaler Versionsvergleich über betroffen, nicht betroffen oder nicht entscheidbar. Windows-Builds wie `10.0.22631.4037` werden als vier Zahlen verglichen. Ein Marketingname wie `2022` reicht dafür nicht.
 
 Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und einem versionsscharfen CSAF-Treffer zusammen. Jede Zeile zeigt die Rechnung. Das Briefing kommt als Markdown, HTML oder JSON und nennt die nächsten Schritte, neue Funde seit dem letzten Lauf, Hinweise auf behobene Versionen und Links zu den Quellen.
 
-Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchwindow demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.
+Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchorder demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.

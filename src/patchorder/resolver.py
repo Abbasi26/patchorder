@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import re
 
-from patchwindow.aliases import BUILD_FAMILY, alias_candidates
-from patchwindow.cpe import canonical_base
-from patchwindow.models import Asset, Candidate, LockEntry, Resolution
-from patchwindow.normalize import tokens
+from patchorder.aliases import BUILD_FAMILY, alias_candidates
+from patchorder.cpe import canonical_base
+from patchorder.models import Asset, Candidate, LockEntry, Resolution
+from patchorder.normalize import tokens
 
 # At or above this, scan will use the CPE and label the result unconfirmed.
 # Below it, scan refuses to guess. Pinning is the only way to mark it confirmed.

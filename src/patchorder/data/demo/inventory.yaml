@@ -1,5 +1,5 @@
 # Fictional inventory. These are not real hosts.
-schema: patchwindow.inventory/v1
+schema: patchorder.inventory/v1
 name: Harbor Workshop (fictional)
 assets:
   - id: edge-proxy

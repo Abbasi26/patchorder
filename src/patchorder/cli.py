@@ -8,31 +8,31 @@ import os
 import sys
 from pathlib import Path
 
-from patchwindow import __version__
-from patchwindow.briefing import render
-from patchwindow.cache import Cache
-from patchwindow.csaf import load_csaf_path
-from patchwindow.engine import live_scan, resolve_inventory, run_demo, utc_now
-from patchwindow.errors import PatchwindowError
-from patchwindow.httpclient import HttpClient
-from patchwindow.inventory import load_inventory
-from patchwindow.lockfile import default_lock_path, dump_lock, dump_state, load_lock, load_state
-from patchwindow.llm import chat_url, cve_texts, parse_chat_response, preview_json, request_body
-from patchwindow.models import LockEntry
-from patchwindow.resolver import format_candidates
-from patchwindow.sources import ENDPOINTS, CSAF_PROVIDER, LiveFetcher
-from patchwindow.cpe import canonical_base
+from patchorder import __version__
+from patchorder.briefing import render
+from patchorder.cache import Cache
+from patchorder.csaf import load_csaf_path
+from patchorder.engine import live_scan, resolve_inventory, run_demo, utc_now
+from patchorder.errors import PatchorderError
+from patchorder.httpclient import HttpClient
+from patchorder.inventory import load_inventory
+from patchorder.lockfile import default_lock_path, dump_lock, dump_state, load_lock, load_state
+from patchorder.llm import chat_url, cve_texts, parse_chat_response, preview_json, request_body
+from patchorder.models import LockEntry
+from patchorder.resolver import format_candidates
+from patchorder.sources import ENDPOINTS, CSAF_PROVIDER, LiveFetcher
+from patchorder.cpe import canonical_base
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="patchwindow",
+        prog="patchorder",
         description=(
             "Which public CVEs apply to the versions in your inventory, and what to patch first. "
             "Read-only unless you pass --write, --output, or --save-state."
         ),
     )
-    parser.add_argument("--version", action="version", version=f"patchwindow {__version__}")
+    parser.add_argument("--version", action="version", version=f"patchorder {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     demo = sub.add_parser("demo", help="briefing from bundled fixtures, no network")
@@ -48,7 +48,7 @@ def _parser() -> argparse.ArgumentParser:
     resolve.add_argument("--non-interactive", action="store_true")
     resolve.add_argument("--offline", action="store_true")
     resolve.add_argument("--no-discover-cpes", action="store_true", help="use the local alias table only")
-    resolve.add_argument("--cache-dir", type=Path, default=Path(".patchwindow/cache"))
+    resolve.add_argument("--cache-dir", type=Path, default=Path(".patchorder/cache"))
     resolve.add_argument("--refresh", action="store_true")
     resolve.set_defaults(func=cmd_resolve)
 
@@ -57,9 +57,9 @@ def _parser() -> argparse.ArgumentParser:
     scan.add_argument("-l", "--lock", type=Path)
     _format_args(scan)
     scan.add_argument("--state", type=Path, help="previous state file, for the new-since-last-run section")
-    scan.add_argument("--save-state", type=Path, nargs="?", const=Path(".patchwindow/state.json"))
+    scan.add_argument("--save-state", type=Path, nargs="?", const=Path(".patchorder/state.json"))
     scan.add_argument("--offline", action="store_true")
-    scan.add_argument("--cache-dir", type=Path, default=Path(".patchwindow/cache"))
+    scan.add_argument("--cache-dir", type=Path, default=Path(".patchorder/cache"))
     scan.add_argument("--refresh", action="store_true")
     scan.add_argument("--pinned-only", action="store_true", help="do not query unpinned CPE guesses")
     scan.add_argument("--no-discover-cpes", action="store_true")
@@ -100,14 +100,14 @@ def _client(args) -> HttpClient:
 
 def cmd_demo(args: argparse.Namespace) -> int:
     if getattr(args, "llm", False):
-        raise PatchwindowError(
+        raise PatchorderError(
             "demo mode does not call an LLM endpoint. Use --llm-preview to print the request body."
         )
     report = run_demo()
     if args.llm_preview:
-        report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHWINDOW_LLM_MODEL", "unset"))
+        report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHORDER_LLM_MODEL", "unset"))
     _emit(render(report, args.format), args.output)
-    print("patchwindow demo: offline, fixtures recorded 2026-10-21", file=sys.stderr)
+    print("patchorder demo: offline, fixtures recorded 2026-10-21", file=sys.stderr)
     return 0
 
 
@@ -115,7 +115,7 @@ def _parse_accept(items: list[str]) -> dict[str, LockEntry]:
     accepted: dict[str, LockEntry] = {}
     for item in items:
         if "=" not in item:
-            raise PatchwindowError(f"--accept must look like id=cpe:2.3:... ({item})")
+            raise PatchorderError(f"--accept must look like id=cpe:2.3:... ({item})")
         asset_id, cpe = item.split("=", 1)
         accepted[asset_id.strip()] = LockEntry(
             cpe=canonical_base(cpe),
@@ -141,7 +141,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
                 continue
             try:
                 dictionary[asset.id] = fetcher.cpe_hits(asset.product)
-            except PatchwindowError as exc:
+            except PatchorderError as exc:
                 print(f"warning: {exc}", file=sys.stderr)
     # Accepted pins override existing ones for this preview.
     merged = dict(existing)
@@ -177,7 +177,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         print("not written. Pass --write to save the lock file.", file=sys.stderr)
         return 0
     if not interactive and not args.accept and _needs_a_choice(resolutions, chosen):
-        raise PatchwindowError(
+        raise PatchorderError(
             "refusing to write a lock file without pins. Pass --accept id=cpe or run resolve in a terminal.",
             code=2,
         )
@@ -220,7 +220,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
                 continue
             try:
                 dictionary[asset.id] = fetcher.cpe_hits(asset.product)
-            except PatchwindowError as exc:
+            except PatchorderError as exc:
                 print(f"warning: {exc}", file=sys.stderr)
     resolutions = resolve_inventory(inventory, lock, dictionary)
     advisories = []
@@ -236,7 +236,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
                     if feed.get("tlp_label") == "WHITE" and feed.get("url"):
                         feeds.append(feed["url"])
             extra.append("CERT-Bund provider metadata feeds (TLP:WHITE): " + ", ".join(feeds))
-        except PatchwindowError as exc:
+        except PatchorderError as exc:
             extra.append(f"CERT-Bund provider metadata was not loaded: {exc}")
     try:
         report = live_scan(
@@ -248,7 +248,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
             pinned_only=args.pinned_only,
             extra_sources=extra,
         )
-    except PatchwindowError:
+    except PatchorderError:
         raise
     _maybe_llm(args, report)
     _emit(render(report, args.format), args.output)
@@ -264,16 +264,16 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
 def _maybe_llm(args, report) -> None:
     texts = cve_texts(report.findings)
-    model = os.environ.get("PATCHWINDOW_LLM_MODEL", "")
+    model = os.environ.get("PATCHORDER_LLM_MODEL", "")
     if args.llm_preview:
         report.llm_preview = preview_json(texts, model or "unset")
         return
     if not args.llm:
         return
-    base = os.environ.get("PATCHWINDOW_LLM_BASE_URL", "").strip()
+    base = os.environ.get("PATCHORDER_LLM_BASE_URL", "").strip()
     if not base or not model:
-        raise PatchwindowError(
-            "LLM hook is on, but PATCHWINDOW_LLM_BASE_URL and PATCHWINDOW_LLM_MODEL must both be set. "
+        raise PatchorderError(
+            "LLM hook is on, but PATCHORDER_LLM_BASE_URL and PATCHORDER_LLM_MODEL must both be set. "
             "Nothing was sent."
         )
     url = chat_url(base)
@@ -281,9 +281,9 @@ def _maybe_llm(args, report) -> None:
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "User-Agent": f"patchwindow/{__version__} (local; no telemetry)",
+        "User-Agent": f"patchorder/{__version__} (local; no telemetry)",
     }
-    api_key = os.environ.get("PATCHWINDOW_LLM_API_KEY", "").strip()
+    api_key = os.environ.get("PATCHORDER_LLM_API_KEY", "").strip()
     if api_key:
         headers["Authorization"] = "Bearer " + api_key
     import urllib.error
@@ -300,14 +300,14 @@ def _maybe_llm(args, report) -> None:
 
 
 def cmd_sources(_args: argparse.Namespace) -> int:
-    print("patchwindow reads these public endpoints when you scan online. This command does not contact them.")
+    print("patchorder reads these public endpoints when you scan online. This command does not contact them.")
     print()
     for name, url in ENDPOINTS:
         print(f"{name}")
         print(f"  {url}")
     print()
     print("NVD_API_KEY, when set, is sent only to services.nvd.nist.gov and is not written to the cache.")
-    print("The LLM hook is off unless you pass --llm. It posts CVE texts to PATCHWINDOW_LLM_BASE_URL.")
+    print("The LLM hook is off unless you pass --llm. It posts CVE texts to PATCHORDER_LLM_BASE_URL.")
     print(f"CERT-Bund CSAF documents are read from --csaf. Provider metadata: {CSAF_PROVIDER}")
     return 0
 
@@ -317,7 +317,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.func(args)
-    except PatchwindowError as exc:
+    except PatchorderError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return exc.code
     except KeyboardInterrupt:

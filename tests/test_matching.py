@@ -1,10 +1,10 @@
 import json
 from pathlib import Path
 
-from patchwindow.matching import evaluate
-from patchwindow.records import from_cve5, from_nvd_cve, parse_vulnerability_lookup
+from patchorder.matching import evaluate
+from patchorder.records import from_cve5, from_nvd_cve, parse_vulnerability_lookup
 
-ROOT = Path(__file__).resolve().parents[1] / "src" / "patchwindow" / "data" / "demo"
+ROOT = Path(__file__).resolve().parents[1] / "src" / "patchorder" / "data" / "demo"
 
 
 def _record(cve_id):

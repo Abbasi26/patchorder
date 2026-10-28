@@ -2,14 +2,14 @@ import json
 from pathlib import Path
 from urllib.parse import parse_qsl, urlsplit
 
-from patchwindow.cache import Cache, cache_key
-from patchwindow.engine import live_scan, resolve_inventory
-from patchwindow.httpclient import HttpClient, HttpResult, RateLimiter
-from patchwindow.inventory import load_inventory
-from patchwindow.lockfile import load_lock
-from patchwindow.sources import NVD_PAGE_SIZE, LiveFetcher, epss_url, nvd_cve_url
+from patchorder.cache import Cache, cache_key
+from patchorder.engine import live_scan, resolve_inventory
+from patchorder.httpclient import HttpClient, HttpResult, RateLimiter
+from patchorder.inventory import load_inventory
+from patchorder.lockfile import load_lock
+from patchorder.sources import NVD_PAGE_SIZE, LiveFetcher, epss_url, nvd_cve_url
 
-ROOT = Path(__file__).resolve().parents[1] / "src" / "patchwindow" / "data" / "demo"
+ROOT = Path(__file__).resolve().parents[1] / "src" / "patchorder" / "data" / "demo"
 
 
 class Clock:
@@ -49,7 +49,7 @@ def test_live_scan_uses_cache_and_does_not_call_the_network_twice(tmp_path, monk
 
     def opener(url, headers):
         calls.append(url)
-        assert "patchwindow/" in headers["User-Agent"]
+        assert "patchorder/" in headers["User-Agent"]
         assert "apiKey" not in url
         if "cpes/2.0" in url:
             body = (ROOT / "nvd-cpes-nginx.json").read_bytes()

@@ -5,7 +5,7 @@
       "rolie": {
         "feeds": [
           {
-            "summary": "Fictional Example CERT feed for the patchwindow demo",
+            "summary": "Fictional Example CERT feed for the patchorder demo",
             "tlp_label": "WHITE",
             "url": "https://example.org/.well-known/csaf/white/example-cert-white.json"
           }

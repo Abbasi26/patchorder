@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Renamed the project from `patchwindow` to `patchorder`: package, CLI, environment variables, files and docs. Entries below use the old name.
+
 ## 0.1.0 - 2026-10-21
 
 - First release.

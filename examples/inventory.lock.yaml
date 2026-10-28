@@ -1,4 +1,4 @@
-schema: patchwindow.lock/v1
+schema: patchorder.lock/v1
 entries:
   edge-proxy:
     cpe: cpe:2.3:a:f5:nginx

@@ -6,14 +6,14 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from patchwindow.csaf import load_csaf_path
-from patchwindow.inventory import load_inventory
-from patchwindow.lockfile import load_lock, load_state
-from patchwindow.models import Inventory, Resolution
-from patchwindow.records import dedupe_records, from_nvd_cve, parse_epss, parse_kev
-from patchwindow.report import Report, assemble
-from patchwindow.resolver import resolve_asset
-from patchwindow.sources import CSAF_PROVIDER, LiveFetcher
+from patchorder.csaf import load_csaf_path
+from patchorder.inventory import load_inventory
+from patchorder.lockfile import load_lock, load_state
+from patchorder.models import Inventory, Resolution
+from patchorder.records import dedupe_records, from_nvd_cve, parse_epss, parse_kev
+from patchorder.report import Report, assemble
+from patchorder.resolver import resolve_asset
+from patchorder.sources import CSAF_PROVIDER, LiveFetcher
 
 DEMO_ROOT = Path(__file__).resolve().parent / "data" / "demo"
 RECORDED = "2026-10-21"
@@ -120,7 +120,7 @@ def live_scan(
     pinned_only: bool,
     extra_sources: list[str] | None = None,
 ) -> Report:
-    from patchwindow.resolver import AUTO_USE_CONFIDENCE
+    from patchorder.resolver import AUTO_USE_CONFIDENCE
 
     adjusted: list[Resolution] = []
     for resolution in resolutions:
@@ -135,9 +135,9 @@ def live_scan(
     try:
         kev = fetcher.kev()
     except Exception as exc:
-        from patchwindow.errors import PatchwindowError
+        from patchorder.errors import PatchorderError
 
-        if isinstance(exc, PatchwindowError):
+        if isinstance(exc, PatchorderError):
             warnings.append(str(exc))
         else:
             warnings.append(f"KEV catalog was not loaded: {exc}")
@@ -148,9 +148,9 @@ def live_scan(
         try:
             epss = fetcher.epss(cve_ids)
         except Exception as exc:
-            from patchwindow.errors import PatchwindowError
+            from patchorder.errors import PatchorderError
 
-            if isinstance(exc, PatchwindowError):
+            if isinstance(exc, PatchorderError):
                 warnings.append(str(exc))
             else:
                 warnings.append(f"EPSS was not loaded: {exc}")

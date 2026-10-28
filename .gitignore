@@ -5,7 +5,7 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-.patchwindow/
+.patchorder/
 .coverage
 htmlcov/
 uploads/

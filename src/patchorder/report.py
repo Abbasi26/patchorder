@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from patchwindow.csaf import CsafAdvisory, CsafHit, hits_for
-from patchwindow.matching import Observation, evaluate
-from patchwindow.models import KevCatalog, Record, Resolution
-from patchwindow.prioritize import FORMULA_LINES, ScorePart, score
+from patchorder.csaf import CsafAdvisory, CsafHit, hits_for
+from patchorder.matching import Observation, evaluate
+from patchorder.models import KevCatalog, Record, Resolution
+from patchorder.prioritize import FORMULA_LINES, ScorePart, score
 
 
 @dataclass
