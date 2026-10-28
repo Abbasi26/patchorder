@@ -4,12 +4,16 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   pytest:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,3 +23,12 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Test offline
         run: python -m pytest
+      - name: Smoke test gate, CSV, and inventory check
+        run: |
+          python -m patchorder inventory check examples/inventory.yaml
+          python -m patchorder demo --format csv --output "$RUNNER_TEMP/findings.csv"
+          set +e
+          python -m patchorder demo --fail-on kev > /dev/null
+          code=$?
+          set -e
+          test "$code" -eq 4
