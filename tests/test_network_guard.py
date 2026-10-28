@@ -12,3 +12,8 @@ def test_network_guard_blocks_connection_entry_points(entrypoint):
         else:
             with socket.socket() as connection:
                 getattr(connection, entrypoint)(address)
+
+
+def test_network_guard_blocks_address_resolution():
+    with pytest.raises(AssertionError, match="^a test tried to use the network$"):
+        socket.getaddrinfo("localhost", 443)
