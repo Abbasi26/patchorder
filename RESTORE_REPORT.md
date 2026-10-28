@@ -1,8 +1,6 @@
 # RESTORE_REPORT — patchorder (project: patchorder)
 
 - **GitHub repo:** `Abbasi26/patchorder` (project name in code/README remains **patchorder**)
-- **Transcript:** `bc-a2581c5a-befb-5e27-9856-6a36406478c8`
-- **Local path:** `/workspace/restore/patchorder` (branch `main`)
 - **Author:** Wasaf Abbasi
 - **Ready to push:** yes (local commits only; no push performed)
 - **Commits:** `ab4d0ea` (tree restore), `0db9483` (demo fixtures)

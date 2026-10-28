@@ -1,6 +1,6 @@
 # SPEC — patchorder (GitHub repo: patchorder)
 
-Restored from Cursor cloud-agent transcript `bc-a2581c5a-befb-5e27-9856-6a36406478c8`.
+Restored from Cursor cloud-agent transcript.
 
 ## Original task prompt
 
