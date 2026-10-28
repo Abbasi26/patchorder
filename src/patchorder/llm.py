@@ -27,7 +27,7 @@ def cve_texts(findings: list[Finding]) -> list[tuple[str, str]]:
         seen.add(finding.cve_id)
         description = (finding.description or "").strip()
         if len(description) > _MAX_CHARS:
-            description = description[:_MAX_CHARS].rstrip() + "..."
+            description = description[:_MAX_CHARS - 3].rstrip() + "..."
         texts.append((finding.cve_id, description))
         if len(texts) >= _MAX_CVES:
             break

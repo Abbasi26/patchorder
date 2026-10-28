@@ -1,6 +1,7 @@
 import json
 import urllib.request
 from pathlib import Path
+from dataclasses import replace
 
 import pytest
 
@@ -210,3 +211,16 @@ def test_demo_attempts_no_http_and_writes_only_requested_output(
     else:
         assert "CVE-2023-44487" in captured.out
         assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize("length", [1199, 1200, 1201])
+def test_llm_description_cap_includes_truncation_marker(length):
+    description = " \n" + "é" * length + "\n "
+    finding = replace(run_demo().findings[0], description=description)
+
+    texts = cve_texts([finding])
+
+    expected = "é" * length if length <= 1200 else "é" * 1197 + "..."
+    assert texts == [(finding.cve_id, expected)]
+    assert len(texts[0][1]) <= 1200
+    assert finding.description == description
