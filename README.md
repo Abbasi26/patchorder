@@ -6,6 +6,14 @@ Which public CVEs apply to the versions in a local inventory, and what to patch 
 
 You keep a short YAML file: product, vendor, version, how many hosts, who owns them, and whether they face the internet. patchorder maps each row to CPE candidates, you pin the right one, and it decides affected / not affected / not decided from the published version ranges. The briefing ranks the work. It does not scan a network and it does not install updates.
 
+## Demo video
+
+[![Demo video for patchorder](docs/media/brag.jpg)](docs/media/brag.mp4)
+
+patchorder answers which public CVEs actually apply to the versions in your local inventory and what to patch first: it maps each YAML row to a CPE, decides affected / not affected / not decided from the published NVD version ranges, and ranks the work with CISA KEV in mind. It does not scan a network or install updates. (Click the image to play the video.)
+
+Music: Sascha Ende ([ende.app](https://ende.app)), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ## The problem
 
 A vulnerability feed can tell you that something named nginx is having a bad week. It cannot tell you that twelve internet-facing proxies on 1.25.2 are in the vulnerable range and the three you already moved to 1.27.2 are not. [Vulnerability-Lookup](https://vulnerability.circl.lu/) returns every CVE for a vendor and product, on purpose, and leaves the version filter to the client. [OpenCVE](https://www.opencve.io/) subscribes you to a product. [CVE_Prioritizer](https://github.com/TURROKS/CVE_Prioritizer) scores a CVE list you already have. None of them starts from "Windows Server 2022, build 10.0.20348.2400, eight internal hosts."
