@@ -61,7 +61,7 @@ python -m patchorder scan -i inventory.yaml --state .patchorder/state.json --sav
 python -m patchorder demo --fail-on kev    # exits 4: nginx 1.25.2 is affected by a KEV-listed CVE
 ```
 
-The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
+The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), `priority:N` (any finding at or above N points), or `epss:N` (any finding with an EPSS probability at or above N, for example `epss:0.5`). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
 
 ### Findings as CSV
 

@@ -26,6 +26,16 @@ def test_parse_gate():
             parse_gate(bad)
 
 
+def test_parse_epss_gate():
+    gate = parse_gate("epss:0.5")
+    assert gate.kind == "epss" and gate.threshold == 0.5 and gate.label() == "epss:0.5"
+    assert parse_gate("epss:0").threshold == 0.0
+    assert parse_gate("epss:1").threshold == 1.0
+    for bad in ("epss:x", "epss:1.5", "epss:-0.1", "epss"):
+        with pytest.raises(PatchorderError):
+            parse_gate(bad)
+
+
 def test_gates_on_demo():
     report = run_demo()
     assert evaluate_gates(report, [parse_gate("kev")])[0].startswith("--fail-on kev: 1 finding(s) (edge-proxy:CVE-2023-44487")
@@ -34,6 +44,25 @@ def test_gates_on_demo():
     assert "3 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
     with pytest.raises(PatchorderError):
         evaluate_gates(replace(report, new_cve_ids=None), [parse_gate("new")])
+
+
+def test_epss_gate_on_demo():
+    report = run_demo()
+    assert len(evaluate_gates(report, [parse_gate("epss:0.5")])) == 1
+    hits = evaluate_gates(report, [parse_gate("epss:0.5")])[0]
+    assert "finding(s)" in hits
+    assert "CVE-2023-44487" in hits and "CVE-2024-6387" in hits
+    assert evaluate_gates(report, [parse_gate("epss:1.0")]) == []
+    assert evaluate_gates(report, [parse_gate("epss:0.99999")]) != []
+    assert evaluate_gates(report, [parse_gate("epss:0.04")]) != []
+    assert evaluate_gates(report, [parse_gate("epss:0.9999999")]) == []
+
+
+def test_epss_gate_skips_missing_epss():
+    report = run_demo()
+    finding = replace(report.findings[0], epss=None)
+    rep = replace(report, findings=[finding])
+    assert evaluate_gates(rep, [parse_gate("epss:0.5")]) == []
 
 
 def test_cli_gate_exit_codes(capsys):
