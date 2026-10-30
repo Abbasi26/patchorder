@@ -1,3 +1,17 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
+    <img src="docs/assets/logo-light.svg" alt="patchorder" height="64">
+  </picture>
+</p>
+
+<p align="center">Which public CVEs apply to the versions you run, and what to patch first.</p>
+
+<p align="center">
+  <img src="docs/assets/readme-hero.png" width="800" alt="Terminal output of patchorder demo --fail-on kev: a briefing for a fictional inventory with the top five patch actions, CVE ids and priorities, and a KEV gate that exits with code 4.">
+</p>
+
 # patchorder
 
 [![CI](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml)
