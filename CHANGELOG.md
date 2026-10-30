@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `--fail-on epss:N` on `scan` and `demo` (repeatable). Exit 4 when a finding has an EPSS probability at or above N (0 to 1).
+
 ## 0.2.0 - 2026-10-28
 
 - `--fail-on kev|new|internet|priority:N` on `scan` and `demo` (repeatable). Exit 4 when a gate matches; the briefing is still printed.

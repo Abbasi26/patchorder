@@ -58,10 +58,11 @@ python -m patchorder inventory check inventory.yaml
 ```bash
 python -m patchorder scan -i inventory.yaml --fail-on kev --fail-on priority:70
 python -m patchorder scan -i inventory.yaml --state .patchorder/state.json --save-state --fail-on new
+python -m patchorder scan -i inventory.yaml --fail-on epss:0.5   # exits 4 when a finding has EPSS >= 0.5
 python -m patchorder demo --fail-on kev    # exits 4: nginx 1.25.2 is affected by a KEV-listed CVE
 ```
 
-The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
+The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), `priority:N` (any finding at or above N points), or `epss:N` (any finding whose EPSS probability is at or above N, where N is between 0 and 1). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
 
 ### Findings as CSV
 

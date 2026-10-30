@@ -21,7 +21,10 @@ def test_parse_gate():
     assert parse_gate("KEV").kind == "kev"
     gate = parse_gate("priority:70")
     assert gate.kind == "priority" and gate.threshold == 70 and gate.label() == "priority:70"
-    for bad in ("priority:x", "priority:200", "critical"):
+    epss = parse_gate("epss:0.5")
+    assert epss.kind == "epss" and epss.threshold == 0.5 and epss.label() == "epss:0.5"
+    assert parse_gate("epss:0").kind == "epss"
+    for bad in ("priority:x", "priority:200", "critical", "epss:x", "epss:1.5"):
         with pytest.raises(PatchorderError):
             parse_gate(bad)
 
@@ -32,6 +35,10 @@ def test_gates_on_demo():
     assert evaluate_gates(report, [parse_gate("priority:95")]) == []
     assert len(evaluate_gates(report, [parse_gate("priority:40"), parse_gate("internet")])) == 2
     assert "3 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
+    # EPSS: every demo finding has an EPSS probability at or above 0.5.
+    assert "4 finding(s)" in evaluate_gates(report, [parse_gate("epss:0.5")])[0]
+    assert "1 finding(s)" in evaluate_gates(report, [parse_gate("epss:0.99999")])[0]
+    assert evaluate_gates(report, [parse_gate("epss:1")]) == []
     with pytest.raises(PatchorderError):
         evaluate_gates(replace(report, new_cve_ids=None), [parse_gate("new")])
 
@@ -44,6 +51,15 @@ def test_cli_gate_exit_codes(capsys):
     assert "gate: --fail-on kev" in captured.err
     assert "CVE-2023-44487" in captured.out  # the briefing is still printed
     assert main(["demo", "--fail-on", "nonsense"]) == 2
+    assert "use kev, new, internet, priority:N, or epss:N" in capsys.readouterr().err
+    assert main(["demo", "--fail-on", "epss:0.5"]) == 4
+    captured = capsys.readouterr()
+    assert "gate: --fail-on epss:0.5" in captured.err
+    assert "4 finding(s)" in captured.err
+    assert main(["demo", "--fail-on", "epss:0.99999"]) == 4
+    assert "1 finding(s)" in capsys.readouterr().err
+    assert main(["demo", "--fail-on", "epss:1"]) == 0
+    assert "gate: passed" in capsys.readouterr().err
 
 
 def test_scan_fail_on_new_needs_state(capsys):

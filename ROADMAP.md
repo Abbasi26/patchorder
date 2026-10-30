@@ -26,6 +26,6 @@ patchorder answers one question: which public CVEs apply to the versions you run
 - `inventory from-csv`: accept an `id` column alias such as `hostname_group` or `asset`.
 - `inventory check --json` for editors and CI.
 - Add five CPE aliases for common products to the starter table, each with a test.
-- `--fail-on epss:0.5` (any finding with an EPSS probability at or above the value).
+- `--fail-on epss:N` (any finding with an EPSS probability at or above the value). Done in v0.2.
 - `--format csv`: an option to pick the columns.
 - An example GitHub Actions workflow that runs `scan --offline` against a committed cache and uploads the CSV.
