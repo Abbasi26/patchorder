@@ -147,3 +147,70 @@ def test_cli_from_csv_writes_only_with_output(tmp_path, capsys):
     out = tmp_path / "inventory.yaml"
     assert main(["inventory", "from-csv", str(src), "--output", str(out)]) == 0
     assert load_inventory(out).assets[0].version == "1.27.2"
+
+
+def test_inventory_check_json_empty(tmp_path, capsys):
+    inv = tmp_path / "inv.yaml"
+    inv.write_text(
+        "schema: patchorder.inventory/v1\nname: t\nassets:\n"
+        "  - {id: a, product: nginx, version: \"1.25.2\", count: 1, owner: o, exposure: internal}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "inv.lock.yaml").write_text(
+        "schema: patchorder.lock/v1\nentries:\n  a:\n    cpe: cpe:2.3:a:f5:nginx\n    pinned: true\n    origin: user\n",
+        encoding="utf-8",
+    )
+    assert main(["inventory", "check", str(inv), "--json"]) == 0
+    out = capsys.readouterr().out.strip()
+    assert out == "[]"
+
+
+def test_inventory_check_json_with_notes(tmp_path, capsys):
+    inv = tmp_path / "inv.yaml"
+    inv.write_text(
+        "schema: patchorder.inventory/v1\nname: t\nassets:\n"
+        "  - {id: a, product: Example Thing, version: \"1.0\", count: 0, owner: o, exposure: internal}\n"
+        "  - {id: b, product: Example Thing, version: \"1.0\", count: 2, owner: o, exposure: internal}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "inv.lock.yaml").write_text(
+        "schema: patchorder.lock/v1\nentries:\n  gone:\n    cpe: cpe:2.3:a:example:thing\n    pinned: true\n    origin: user\n",
+        encoding="utf-8",
+    )
+    assert main(["inventory", "check", str(inv), "--json"]) == 0
+    out = capsys.readouterr().out.strip()
+    import json as jsonlib
+
+    notes = jsonlib.loads(out)
+    assert isinstance(notes, list)
+    assert len(notes) == 5
+    for note in notes:
+        assert set(note.keys()) == {"level", "asset_id", "text"}
+    levels = [n["level"] for n in notes]
+    assert "warning" in levels
+    assert "info" in levels
+
+
+def test_inventory_check_strict_json_exit_code(tmp_path, capsys):
+    inv = tmp_path / "inv.yaml"
+    inv.write_text(
+        "schema: patchorder.inventory/v1\nname: t\nassets:\n"
+        "  - {id: a, product: nginx, version: \"1.25.2\", count: 1, owner: o, exposure: internal}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "inv.lock.yaml").write_text(
+        "schema: patchorder.lock/v1\nentries:\n  a:\n    cpe: cpe:2.3:a:f5:nginx\n    pinned: true\n    origin: user\n",
+        encoding="utf-8",
+    )
+    assert main(["inventory", "check", str(inv), "--json", "--strict"]) == 0
+    inv.write_text(
+        "schema: patchorder.inventory/v1\nname: t\nassets:\n"
+        "  - {id: a, product: Example Thing, version: \"1.0\", count: 0, owner: o, exposure: internal}\n"
+        "  - {id: b, product: Example Thing, version: \"1.0\", count: 2, owner: o, exposure: internal}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "inv.lock.yaml").write_text(
+        "schema: patchorder.lock/v1\nentries:\n  gone:\n    cpe: cpe:2.3:a:example:thing\n    pinned: true\n    origin: user\n",
+        encoding="utf-8",
+    )
+    assert main(["inventory", "check", str(inv), "--json", "--strict"]) == 4
