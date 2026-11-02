@@ -103,7 +103,7 @@ def _format_args(parser: argparse.ArgumentParser) -> None:
         action="append",
         default=[],
         metavar="GATE",
-        help="exit 4 when a finding matches: kev, new (needs --state), internet, or priority:N (repeatable)",
+        help="exit 4 when a finding matches: kev, new (needs --state), internet, priority:N, or epss:N (repeatable)",
     )
 
 
