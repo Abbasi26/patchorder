@@ -28,10 +28,10 @@ def test_parse_gate():
 
 def test_gates_on_demo():
     report = run_demo()
-    assert evaluate_gates(report, [parse_gate("kev")])[0].startswith("--fail-on kev: 1 finding(s) (edge-proxy:CVE-2023-44487")
+    assert evaluate_gates(report, [parse_gate("kev")])[0].startswith("--fail-on kev: 4 finding(s) (edge-proxy:CVE-2023-44487, vpn-gateway-lab:CVE-2026-111357")
     assert evaluate_gates(report, [parse_gate("priority:95")]) == []
     assert len(evaluate_gates(report, [parse_gate("priority:40"), parse_gate("internet")])) == 2
-    assert "3 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
+    assert "6 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
     with pytest.raises(PatchorderError):
         evaluate_gates(replace(report, new_cve_ids=None), [parse_gate("new")])
 

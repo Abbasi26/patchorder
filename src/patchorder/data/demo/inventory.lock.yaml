@@ -54,3 +54,15 @@ entries:
     confidence: 1.0
     origin: user
     note: Pinned so the briefing can show a marketing name is not a build.
+  vpn-gateway:
+    cpe: cpe:2.3:a:ivanti:connect_secure
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  vpn-gateway-lab:
+    cpe: cpe:2.3:a:ivanti:connect_secure
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.

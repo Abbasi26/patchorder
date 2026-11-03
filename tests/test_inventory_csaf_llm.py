@@ -64,8 +64,8 @@ def test_provider_metadata_and_kev_subset_and_cpe_dictionary():
     assert meta["canonical_url"].startswith("https://example.org/")
     kev = parse_kev(json.loads((ROOT / "kev.json").read_text(encoding="utf-8")))
     assert "CVE-2023-44487" in kev.entries
-    assert kev.published_count == 1754
-    assert len(kev.entries) == 1
+    assert kev.published_count == 1766
+    assert len(kev.entries) == 3
     assert "subset" in kev.note or "published catalog count" in kev.note
     hits = parse_nvd_cpe_hits(json.loads((ROOT / "nvd-cpes-nginx.json").read_text(encoding="utf-8")))
     assert any(item["cpe"].startswith("cpe:2.3:a:f5:nginx:") and not item["deprecated"] for item in hits)

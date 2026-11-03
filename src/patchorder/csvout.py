@@ -10,6 +10,7 @@ from patchorder.report import Report
 COLUMNS = (
     "priority", "asset_id", "product", "vendor", "version", "count", "owner", "exposure",
     "cve_id", "kev", "epss", "cvss", "severity", "fixed_hint", "cpe", "cpe_confirmed", "new_since_last_run",
+    "kev_due_date", "kev_overdue_days",
 )
 
 _FORMULA_START = ("=", "+", "-", "@", "\t", "\r")
@@ -40,5 +41,6 @@ def render_csv(report: Report) -> str:
             _cell(f.count), _cell(f.owner), _cell(f.exposure), _cell(f.cve_id), _cell(f.kev), _cell(f.epss),
             _cell(f.cvss), _cell(f.severity), _cell(f.fixed_hint), _cell(f.cpe), _cell(f.cpe_confirmed),
             _cell(f.cve_id in new) if report.new_cve_ids is not None else "",
+            _cell(f.kev_due_date), _cell(f.kev_overdue_days),
         ])
     return buffer.getvalue()

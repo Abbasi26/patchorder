@@ -103,7 +103,7 @@ def _format_args(parser: argparse.ArgumentParser) -> None:
         action="append",
         default=[],
         metavar="GATE",
-        help="exit 4 when a finding matches: kev, new (needs --state), internet, or priority:N (repeatable)",
+        help="exit 4 when a finding matches: kev, kev-overdue, new (needs --state), internet, or priority:N (repeatable)",
     )
 
 
@@ -157,7 +157,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
     if args.llm_preview:
         report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHORDER_LLM_MODEL", "unset"))
     _emit(_render(report, args.format), args.output)
-    print("patchorder demo: offline, fixtures recorded 2026-10-21", file=sys.stderr)
+    print("patchorder demo: offline, fixtures recorded 2026-10-21 and 2026-11-03", file=sys.stderr)
     return _apply_gates(report, gates)
 
 

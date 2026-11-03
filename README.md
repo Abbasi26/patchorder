@@ -45,7 +45,7 @@ python -m pip install -e .
 python -m patchorder demo
 ```
 
-`demo` reads bundled fixtures recorded on 2026-10-21 and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
+`demo` reads bundled fixtures recorded on 2026-10-21 (Ivanti Connect Secure records on 2026-11-03) and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
 
 ```bash
 python -m patchorder demo --format html --output briefing.html
@@ -53,6 +53,17 @@ python -m patchorder demo --llm-preview
 ```
 
 `--llm-preview` prints the request body and does not send it. The body is CVE identifiers and description text only.
+
+### KEV due dates
+
+Every CISA KEV entry has a `dueDate`. patchorder copies it into each KEV finding and counts the days past it on the run's UTC date (`as_of` in JSON). It reads `cisaActionDue` from the NVD record when no KEV file was loaded. The date shows up in the top actions, the Markdown details, the HTML table, JSON (`kev_due_date`, `kev_overdue_days`), and two new CSV columns at the end. Points do not change. KEV listing already scores 40 points, and a due date set for US federal agencies is not a risk measure for other estates.
+
+The demo has two fictional VPN gateway rows on Ivanti Connect Secure. The CVEs, KEV entries, NVD configurations, and EPSS scores are real recordings:
+
+- `vpn-gateway`, 22.8R2.4, internet-facing: [CVE-2026-104935](https://nvd.nist.gov/vuln/detail/CVE-2026-104935) (KEV added 2026-10-13, due 2026-10-16) and [CVE-2026-111357](https://nvd.nist.gov/vuln/detail/CVE-2026-111357) (KEV added 2026-10-30, due 2026-11-02).
+- `vpn-gateway-lab`, 22.8R2.5, internal: only CVE-2026-111357. NVD lists 22.8 r2.5 for that CVE but not for CVE-2026-104935.
+
+Ivanti release strings such as `22.8R2.4` are split into CPE version `22.8` and update `r2.4`, the way NVD writes them.
 
 ### Start from a spreadsheet
 
@@ -73,9 +84,10 @@ python -m patchorder inventory check inventory.yaml
 python -m patchorder scan -i inventory.yaml --fail-on kev --fail-on priority:70
 python -m patchorder scan -i inventory.yaml --state .patchorder/state.json --save-state --fail-on new
 python -m patchorder demo --fail-on kev    # exits 4: nginx 1.25.2 is affected by a KEV-listed CVE
+python -m patchorder demo --fail-on kev-overdue    # exits 4: KEV due dates on nginx and the VPN gateways have passed
 ```
 
-The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
+The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `kev-overdue` (a KEV finding whose due date is before the run's UTC date), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
 
 ### Findings as CSV
 
@@ -263,3 +275,5 @@ Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und e
 Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchorder demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.
 
 Neu in 0.2: `inventory from-csv` macht aus einem CSV-Export ein Inventar, `inventory check` prüft es offline, und `--fail-on kev|new|internet|priority:N` beendet einen CI- oder Nachtlauf mit Exit-Code 4, wenn ein passender Fund auftaucht.
+
+Neu: Jeder KEV-Fund nennt das `dueDate` aus dem CISA-Katalog und die Tage seit Ablauf. `--fail-on kev-overdue` schlägt nur bei abgelaufener Frist an. Die Punkte ändern sich dadurch nicht. Die Demo enthält zwei fiktive VPN-Gateways mit Ivanti Connect Secure und den echten KEV-Einträgen CVE-2026-104935 und CVE-2026-111357.

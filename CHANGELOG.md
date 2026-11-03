@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- KEV due dates: each KEV finding carries `kev_due_date` (KEV `dueDate`, or NVD `cisaActionDue` when no KEV file is loaded) and `kev_overdue_days` relative to the run's UTC date. Shown in Markdown, HTML, JSON (`as_of`) and as two new trailing CSV columns. Points are unchanged.
+- `--fail-on kev-overdue`: exit 4 when a KEV finding is past its due date.
+- Ivanti-style release strings (`22.8R2.4`) are split into CPE version `22.8` and update `r2.4`.
+- Demo: fictional VPN gateway rows on Ivanti Connect Secure 22.8R2.4 and 22.8R2.5 with recorded NVD, KEV (catalog 2026.10.30) and EPSS data for CVE-2026-104935 and CVE-2026-111357.
+
 ## 0.2.0 - 2026-10-28
 
 - `--fail-on kev|new|internet|priority:N` on `scan` and `demo` (repeatable). Exit 4 when a gate matches; the briefing is still printed.
