@@ -72,3 +72,17 @@ assets:
     count: 4
     owner: apps
     exposure: internal
+  - id: vpn-gateway
+    product: Ivanti Connect Secure
+    vendor: Ivanti
+    version: "22.8R2.4"
+    count: 2
+    owner: network
+    exposure: internet
+  - id: vpn-gateway-lab
+    product: Ivanti Connect Secure
+    vendor: Ivanti
+    version: "22.8R2.5"
+    count: 1
+    owner: network
+    exposure: internal

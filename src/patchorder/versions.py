@@ -2,7 +2,8 @@
 
 Windows builds are compared as dotted integers (10.0.22631.4037). An OpenSSH
 portable suffix such as 9.8p1 sorts after 9.8. An OpenSSL letter suffix such as
-1.1.1w sorts after 1.1.1 and before 1.1.1x. Missing trailing numeric components
+1.1.1w sorts after 1.1.1 and before 1.1.1x. A release suffix such as
+22.8R2.4 (Ivanti Connect Secure) is split into version 22.8 and CPE update r2.4. Missing trailing numeric components
 compare as zero, so 1.25 and 1.25.0 are equal.
 """
 
@@ -13,6 +14,7 @@ import re
 _TOKEN = re.compile(r"\d+|[A-Za-z]+")
 _LEADING_V = re.compile(r"^[vV](?=\d)")
 _PORTABLE = re.compile(r"^(.+?)p(\d+)$")
+_RELEASE = re.compile(r"^(\d+(?:\.\d+)+)[Rr](\d+(?:\.\d+)*)$")
 _WINDOWS_BUILD = re.compile(r"^(?:10|6)\.\d+\.\d+(?:\.\d+)?$")
 
 # A Windows product whose NVD ranges are build numbers, not marketing names.
@@ -46,8 +48,11 @@ def compare_versions(left: str, right: str) -> int:
 
 
 def split_portable_update(version: str) -> tuple[str, str | None]:
-    """Split an OpenSSH-style 9.8p1 into ('9.8', 'p1'). Leave 1.1.1w intact."""
+    """Split 9.8p1 into ('9.8', 'p1') and 22.8R2.4 into ('22.8', 'r2.4'). Leave 1.1.1w intact."""
     text = version.strip()
+    release = _RELEASE.fullmatch(text)
+    if release:
+        return release.group(1), "r" + release.group(2)
     match = _PORTABLE.fullmatch(text)
     if match and re.search(r"\d", match.group(1)):
         return match.group(1), "p" + match.group(2)

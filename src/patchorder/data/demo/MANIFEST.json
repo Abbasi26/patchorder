@@ -1,6 +1,6 @@
 {
-  "recorded": "2026-10-21",
-  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchorder fixture), not copies of published advisories. The KEV vulnerabilities array contains 1 of the catalog's published entries.",
+  "recorded": "2026-10-21; Ivanti Connect Secure records, KEV header and the two Ivanti EPSS rows 2026-11-03",
+  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchorder fixture), not copies of published advisories. The KEV vulnerabilities array contains 3 of the catalog's published entries (catalog 2026.10.30). The Ivanti Connect Secure rows in the inventory are fictional hosts; the CVE ids, KEV entries, NVD configurations and EPSS scores are real recordings.",
   "sources": {
     "nvd_cve": "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=",
     "epss": "https://api.first.org/data/v1/epss",

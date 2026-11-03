@@ -16,7 +16,7 @@ from patchorder.resolver import resolve_asset
 from patchorder.sources import CSAF_PROVIDER, LiveFetcher
 
 DEMO_ROOT = Path(__file__).resolve().parent / "data" / "demo"
-RECORDED = "2026-10-21"
+RECORDED = "2026-10-21 (Ivanti Connect Secure records 2026-11-03)"
 
 
 def utc_now() -> str:
@@ -34,7 +34,7 @@ def _load_nvd_dir(path: Path) -> list:
     return records
 
 
-def run_demo() -> Report:
+def run_demo(as_of: str | None = None) -> Report:
     root = DEMO_ROOT
     inventory = load_inventory(root / "inventory.yaml")
     lock = load_lock(root / "inventory.lock.yaml")
@@ -67,6 +67,7 @@ def run_demo() -> Report:
         previous_ids=previous,
         warnings=[],
         sources=sources,
+        as_of=as_of,
     )
 
 

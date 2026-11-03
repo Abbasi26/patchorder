@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 
 from patchorder.csaf import CsafAdvisory, CsafHit, hits_for
 from patchorder.matching import Observation, evaluate
@@ -41,6 +42,8 @@ class Finding:
     csaf: list[CsafHit]
     published: str | None
     basis: str
+    kev_due_date: str | None = None
+    kev_overdue_days: int | None = None
 
 
 @dataclass
@@ -68,6 +71,7 @@ class Report:
     formula: tuple[str, ...] = field(default_factory=lambda: FORMULA_LINES)
     llm_summary: str | None = None
     llm_preview: str | None = None
+    as_of: str | None = None
 
 
 def _links(cve_id: str, references: list[str], csaf_hits: list[CsafHit], kev: bool) -> list[tuple[str, str]]:
@@ -97,6 +101,25 @@ def _fixed_hint(observation: Observation, csaf_hits: list[CsafHit]) -> str | Non
     if not pieces:
         return None
     return " ".join(pieces)
+def _parse_day(value: str | None) -> date | None:
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+
+
+def overdue_days(due: str | None, as_of: str | None) -> int | None:
+    """Days past the KEV dueDate on the as-of day. 0 means due today or not yet due.
+
+    None means there is no usable due date, so nothing is claimed.
+    """
+    due_day = _parse_day(due)
+    as_of_day = _parse_day(as_of)
+    if due_day is None or as_of_day is None:
+        return None
+    return max(0, (as_of_day - due_day).days)
 
 
 def assemble(
@@ -112,7 +135,9 @@ def assemble(
     previous_ids: set[str] | None,
     warnings: list[str],
     sources: list[str],
+    as_of: str | None = None,
 ) -> Report:
+    as_of = (as_of or generated_at)[:10]
     findings: list[Finding] = []
     notes: list[AssetNote] = []
     for resolution in resolutions:
@@ -143,16 +168,19 @@ def assemble(
                     kev_detail = f" (added {kev_entry.date_added})" if kev_entry.date_added else ""
                     kev_name = kev_entry.name
                     kev_date = kev_entry.date_added
+                    kev_due = kev_entry.due_date or record.cisa_action_due
                     ransomware = kev_entry.ransomware
                 elif record.cisa_exploit_add:
                     kev_detail = f" (NVD cisaExploitAdd {record.cisa_exploit_add}; KEV catalog file not loaded)"
                     kev_name = record.cisa_name
                     kev_date = record.cisa_exploit_add
+                    kev_due = record.cisa_action_due
                     ransomware = None
                 else:
                     kev_detail = ""
                     kev_name = None
                     kev_date = None
+                    kev_due = None
                     ransomware = None
                 epss_score = epss.get(record.cve_id)
                 exact = any(hit.known_affected and hit.version_specific for hit in csaf_hits)
@@ -198,6 +226,8 @@ def assemble(
                         csaf=csaf_hits,
                         published=record.published,
                         basis=observation.basis,
+                        kev_due_date=kev_due,
+                        kev_overdue_days=overdue_days(kev_due, as_of),
                     )
                 )
             elif observation.verdict == "not_decided":
@@ -249,4 +279,5 @@ def assemble(
         previous_state_loaded=previous_ids is not None,
         warnings=warnings,
         sources=sources,
+        as_of=as_of,
     )

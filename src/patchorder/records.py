@@ -89,6 +89,7 @@ def from_nvd_cve(cve: dict, source: str = "nvd") -> Record | None:
         published=cve.get("published"),
         cisa_exploit_add=cve.get("cisaExploitAdd"),
         cisa_name=cve.get("cisaVulnerabilityName"),
+        cisa_action_due=cve.get("cisaActionDue") if isinstance(cve.get("cisaActionDue"), str) else None,
         source=source,
     )
 
@@ -232,6 +233,7 @@ def parse_kev(payload: dict) -> KevCatalog:
             date_added=item.get("dateAdded"),
             short_description=str(item.get("shortDescription") or ""),
             ransomware=item.get("knownRansomwareCampaignUse"),
+            due_date=item.get("dueDate") if isinstance(item.get("dueDate"), str) else None,
         )
     published = payload.get("count")
     note = ""

@@ -34,7 +34,7 @@ def test_demo_briefing_answers_the_question():
     assert "bastion-fixed" not in by_asset
     assert "server-name-only" not in by_asset
     assert "custom-connector" not in by_asset
-    assert report.new_cve_ids == ["CVE-2023-44487", "CVE-2024-38063"]
+    assert report.new_cve_ids == ["CVE-2023-44487", "CVE-2024-38063", "CVE-2026-104935", "CVE-2026-111357"]
     kinds = {(note.asset_id, note.kind) for note in report.notes}
     assert ("edge-current", "not_affected") in kinds
     assert ("file-servers-patched", "not_affected") in kinds
