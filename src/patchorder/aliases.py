@@ -89,6 +89,11 @@ ALIASES: tuple[Alias, ...] = (
     Alias(("windows 10 1809",), ("microsoft",), "o", "microsoft", "windows_10_1809", "Windows 10 1809 (build family 17763)."),
     Alias(("windows 10 1607",), ("microsoft",), "o", "microsoft", "windows_10_1607", "Windows 10 1607 (build family 14393)."),
     Alias(("windows 10 1507",), ("microsoft",), "o", "microsoft", "windows_10_1507", "Windows 10 1507 (build family 10240)."),
+    Alias(("redis",), ("redis",), "a", "redis", "redis", "Redis upstream CPE."),
+    Alias(("haproxy",), ("haproxy",), "a", "haproxy", "haproxy", "HAProxy from HAProxy Technologies."),
+    Alias(("varnish",), ("varnish",), "a", "varnish", "varnish", "Varnish Cache upstream CPE."),
+    Alias(("bind 9", "bind9"), ("isc",), "a", "isc", "bind9", "BIND 9 from ISC, not Microsoft DNS or Unbound."),
+    Alias(("node.js", "nodejs"), ("nodejs", "node"), "a", "nodejs", "node.js", "Node.js runtime; the CPE vendor is nodejs."),
 )
 
 # When the primary alias hits, also show this other dictionary name, lower.
