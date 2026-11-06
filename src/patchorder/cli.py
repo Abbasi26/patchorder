@@ -81,6 +81,7 @@ def _parser() -> argparse.ArgumentParser:
     inv_check.add_argument("inventory", type=Path)
     inv_check.add_argument("-l", "--lock", type=Path, help="lock file (default: next to the inventory)")
     inv_check.add_argument("--strict", action="store_true", help="exit 4 on warnings too")
+    inv_check.add_argument("--json", action="store_true", help="emit notes as JSON array (level, asset_id, text)")
     inv_check.set_defaults(func=cmd_inventory_check)
     inv_csv = inv_sub.add_parser("from-csv", help="turn a CSV export into inventory YAML (printed unless --output)")
     inv_csv.add_argument("csv", type=Path)
@@ -353,9 +354,17 @@ def _maybe_llm(args, report) -> None:
 
 
 def cmd_inventory_check(args: argparse.Namespace) -> int:
-    from patchorder.inventorytools import check_inventory
+    from patchorder.inventorytools import check_inventory, notes_to_json
 
     notes = check_inventory(args.inventory, args.lock)
+    if args.json:
+        print(notes_to_json(notes))
+        counts = {"error": 0, "warning": 0, "info": 0}
+        for note in notes:
+            counts[note.level] += 1
+        if args.strict and counts["warning"]:
+            return 4
+        return 0
     counts = {"error": 0, "warning": 0, "info": 0}
     for note in notes:
         counts[note.level] += 1

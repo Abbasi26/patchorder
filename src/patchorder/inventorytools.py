@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import io
 import json
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
@@ -65,6 +65,11 @@ def check_inventory(path: Path, lock_path: Path | None = None) -> list[Inventory
         if not ok:
             notes.append(InventoryNote("warning", asset.id, f"{reason}; every CVE for this row will be 'not decided'"))
     return notes
+
+
+def notes_to_json(notes: list[InventoryNote]) -> str:
+    """Serialize inventory notes as a JSON array with stable key order."""
+    return json.dumps([asdict(note) for note in notes], ensure_ascii=False, separators=(",", ":"))
 
 
 def _normalize_header(name: str) -> str:
