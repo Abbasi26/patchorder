@@ -15,6 +15,7 @@
 # patchorder
 
 [![CI](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Which public CVEs apply to the versions in a local inventory, and what to patch first.
 
