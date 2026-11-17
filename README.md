@@ -98,6 +98,8 @@ python -m patchorder demo --format csv --output findings.csv
 
 One row per finding, sorted by priority, with KEV, EPSS, CVSS, the fixed-version hint, the CPE, and whether it is new since the last run. Cells that start with `=`, `+`, `-`, or `@` are prefixed with `'` so a spreadsheet does not run them as formulas.
 
+`--columns cve_id,priority,owner,fixed_hint` writes only those columns, in that order, for a ticket import that expects a fixed layout. An unknown or repeated name stops the run with exit 2 and lists the valid names. Without `--columns` the file is unchanged.
+
 ## Real usage
 
 Copy `examples/inventory.yaml`. Quote versions. YAML will read an unquoted `1.10` as `1.1`.

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `--columns NAMES` with `--format csv` on `scan` and `demo`: write only the named columns, in the given order. Unknown or repeated names exit 2 before any request.
 - Docs: `docs/windows-autopatch.md` maps findings to the Windows Autopatch approval model (automatic/manual approval, deferral, expedite, pause), with Microsoft sources. A test keeps its example in sync with the demo output.
 - KEV due dates: each KEV finding carries `kev_due_date` (KEV `dueDate`, or NVD `cisaActionDue` when no KEV file is loaded) and `kev_overdue_days` relative to the run's UTC date. Shown in Markdown, HTML, JSON (`as_of`) and as two new trailing CSV columns. Points are unchanged.
 - `--fail-on kev-overdue`: exit 4 when a KEV finding is past its due date.
