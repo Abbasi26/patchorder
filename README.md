@@ -204,6 +204,10 @@ The local matcher is the source of the affected / not affected / not decided lin
 
 The alias table is a starter set (nginx, NGINX Plus, OpenSSL, Apache HTTP Server, Tomcat, OpenSSH, PHP, curl, PostgreSQL, MySQL, MariaDB, and a handful of Windows releases). It is not a CPE dictionary. Pin the CPE after you have looked at the candidates.
 
+### Windows Autopatch
+
+patchorder does not deploy updates. If your Windows devices are updated through Windows Autopatch, [docs/windows-autopatch.md](docs/windows-autopatch.md) explains how a finding such as "Update to 10.0.22631.4037 or later" meets the Autopatch approval settings: automatic approval with a 0 to 30 day deferral for monthly security updates, manual approval by default for preview and out-of-band releases, expedite, and pause. Every Autopatch statement there cites a Microsoft source.
+
 ## Required permissions
 
 None. The tool reads a YAML file you wrote and, on a live run, makes outbound HTTPS requests to the public endpoints above. It does not need an agent, administrator rights, or credentials on the systems in the inventory.
@@ -276,5 +280,7 @@ Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und e
 Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchorder demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.
 
 Neu in 0.2: `inventory from-csv` macht aus einem CSV-Export ein Inventar, `inventory check` prüft es offline, und `--fail-on kev|new|internet|priority:N` beendet einen CI- oder Nachtlauf mit Exit-Code 4, wenn ein passender Fund auftaucht.
+
+Für Windows-Geräte, die über Windows Autopatch aktualisiert werden, erklärt [docs/windows-autopatch.md](docs/windows-autopatch.md) mit Microsoft-Quellen, wie ein Fund zum Freigabemodell passt: automatische Freigabe mit 0 bis 30 Tagen Verzögerung für monatliche Sicherheitsupdates, manuelle Freigabe als Standard für Vorschau- und Out-of-Band-Updates, Beschleunigen und Pausieren.
 
 Neu: Jeder KEV-Fund nennt das `dueDate` aus dem CISA-Katalog und die Tage seit Ablauf. `--fail-on kev-overdue` schlägt nur bei abgelaufener Frist an. Die Punkte ändern sich dadurch nicht. Die Demo enthält zwei fiktive VPN-Gateways mit Ivanti Connect Secure und den echten KEV-Einträgen CVE-2026-104935 und CVE-2026-111357.
