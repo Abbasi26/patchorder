@@ -67,6 +67,29 @@ def _refs(items: object) -> list[str]:
     return found
 
 
+def _cve5_affected_from_nvd(cve: dict) -> list:
+    """Lift official CNA affected products out of an NVD 2.0 CVE object.
+
+    NVD may publish that list as `affected` entries that already look like
+    CVE List 5 blocks, or as `{source, affectedData: [...]}` wrappers, before
+    any CPE `configurations` exist. The matcher still prefers configurations
+    when both are present.
+    """
+    raw = cve.get("affected")
+    if not isinstance(raw, list):
+        return []
+    blocks: list = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        data = item.get("affectedData")
+        if isinstance(data, list):
+            blocks.extend(entry for entry in data if isinstance(entry, dict))
+        elif "vendor" in item or "product" in item or "versions" in item:
+            blocks.append(item)
+    return blocks
+
+
 def from_nvd_cve(cve: dict, source: str = "nvd") -> Record | None:
     if not isinstance(cve, dict) or not isinstance(cve.get("id"), str):
         return None
@@ -81,7 +104,7 @@ def from_nvd_cve(cve: dict, source: str = "nvd") -> Record | None:
         cve_id=cve["id"],
         description=_description(cve.get("descriptions")),
         configurations=configurations,
-        cve5_affected=[],
+        cve5_affected=_cve5_affected_from_nvd(cve),
         cvss=score,
         severity=severity,
         vector=vector,

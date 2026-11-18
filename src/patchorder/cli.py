@@ -175,7 +175,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
     if args.llm_preview:
         report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHORDER_LLM_MODEL", "unset"))
     _emit(_render(report, args.format, columns), args.output)
-    print("patchorder demo: offline, fixtures recorded 2026-10-21 and 2026-11-03", file=sys.stderr)
+    print("patchorder demo: offline, fixtures recorded 2026-10-21, 2026-11-03 and 2026-11-18", file=sys.stderr)
     return _apply_gates(report, gates)
 
 

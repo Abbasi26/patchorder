@@ -3,8 +3,9 @@
 ## Unreleased
 
 - Inventory rows can set `device_class` to `windows` or `windows-server`. Shared build families such as 26100 then offer only the matching edition. A Windows Server vNext build (29621 or later), as documented for the Intune Insider preview, does not invent a CPE.
-
-
+- Dependabot: weekly Python updates (uv ecosystem) for `pyproject.toml`, `requirements-ci.in` and the hash-pinned `requirements-ci.txt`. `requirements-ci.txt` is now compiled from `requirements-ci.in` so Dependabot can recompile it with hashes.
+- Demo: fictional Oracle Java SE rows for CVE-2026-114938 (Java4Shell) with a recorded NVD document (status Received, official Oracle CVSS 3.1 8.1, CNA affected versions, no invented CPE ranges or EPSS). The CVE is not in the demo KEV catalog. `from_nvd_cve` now reads NVD `affected` / `affectedData` when present; CPE `configurations` still win when both exist.
+- Dependencies: runtime, dev and build requirements in `pyproject.toml` are pinned to exact versions (`==`). CI installs from the hash-pinned `requirements-ci.txt` (`pip install --require-hashes`), then the project itself with `--no-deps`. Prompted by the malicious `agent-framework` 1.26.1/1.26.2 releases on PyPI ([MAL-2026-20101](https://osv.dev/vulnerability/MAL-2026-20101)); none of these projects depend on it.
 - `--columns NAMES` with `--format csv` on `scan` and `demo`: write only the named columns, in the given order. Unknown or repeated names exit 2 before any request.
 - Docs: `docs/windows-autopatch.md` maps findings to the Windows Autopatch approval model (automatic/manual approval, deferral, expedite, pause), with Microsoft sources. A test keeps its example in sync with the demo output.
 - KEV due dates: each KEV finding carries `kev_due_date` (KEV `dueDate`, or NVD `cisaActionDue` when no KEV file is loaded) and `kev_overdue_days` relative to the run's UTC date. Shown in Markdown, HTML, JSON (`as_of`) and as two new trailing CSV columns. Points are unchanged.

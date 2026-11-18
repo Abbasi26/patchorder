@@ -90,3 +90,24 @@ assets:
     count: 1
     owner: network
     exposure: internal
+  - id: jdk-app
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "17.0.21.0.3"
+    count: 5
+    owner: apps
+    exposure: internet
+  - id: jdk-app-patched
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "17.0.21.1"
+    count: 2
+    owner: apps
+    exposure: internet
+  - id: jdk-11
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "11.0.33.0.3"
+    count: 3
+    owner: apps
+    exposure: internal
