@@ -16,7 +16,7 @@ from patchorder.resolver import resolve_asset
 from patchorder.sources import CSAF_PROVIDER, LiveFetcher
 
 DEMO_ROOT = Path(__file__).resolve().parent / "data" / "demo"
-RECORDED = "2026-10-21 (Ivanti Connect Secure records 2026-11-03)"
+RECORDED = "2026-10-21 (Ivanti Connect Secure records 2026-11-03; CVE-2026-114938 2026-11-18)"
 
 
 def utc_now() -> str:
@@ -46,7 +46,7 @@ def run_demo(as_of: str | None = None) -> Report:
     advisories = load_csaf_path(root / "csaf")
     sources = [
         f"NVD CVE API 2.0: {len(records)} records bundled as fixtures recorded {RECORDED}, "
-        "reduced to the CPE matches this demo decides. Not a live query.",
+        "reduced to the version data this demo decides. Not a live query.",
         f"CISA KEV: catalog {kev.catalog_version}. {kev.note or str(len(kev.entries)) + ' entries loaded'}".strip(),
         "FIRST EPSS: bundled scores. Not a live query.",
         "Vulnerability-Lookup: not queried in demo mode. Live scans call cpesearch and then filter versions locally.",
