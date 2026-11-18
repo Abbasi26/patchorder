@@ -36,7 +36,3 @@ def test_cve_texts_selects_twenty_unique_cves_by_priority():
         ],
     ]
     assert findings == original
-
-
-# Skipped production changes and additional options; this is test hardening only.
-# Tests were not run successfully: the read-only environment has no writable temporary directory.
