@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Demo: fictional Oracle Java SE rows for CVE-2026-114938 (Java4Shell) with a recorded NVD document (status Received, official Oracle CVSS 3.1 8.1, CNA affected versions, no invented CPE ranges or EPSS). The CVE is not in the demo KEV catalog. `from_nvd_cve` now reads NVD `affected` / `affectedData` when present; CPE `configurations` still win when both exist.
 - `--columns NAMES` with `--format csv` on `scan` and `demo`: write only the named columns, in the given order. Unknown or repeated names exit 2 before any request.
 - Docs: `docs/windows-autopatch.md` maps findings to the Windows Autopatch approval model (automatic/manual approval, deferral, expedite, pause), with Microsoft sources. A test keeps its example in sync with the demo output.
 - KEV due dates: each KEV finding carries `kev_due_date` (KEV `dueDate`, or NVD `cisaActionDue` when no KEV file is loaded) and `kev_overdue_days` relative to the run's UTC date. Shown in Markdown, HTML, JSON (`as_of`) and as two new trailing CSV columns. Points are unchanged.

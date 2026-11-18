@@ -46,7 +46,7 @@ python -m pip install -e .
 python -m patchorder demo
 ```
 
-`demo` reads bundled fixtures recorded on 2026-10-21 (Ivanti Connect Secure records on 2026-11-03) and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
+`demo` reads bundled fixtures recorded on 2026-10-21 (Ivanti Connect Secure records on 2026-11-03, CVE-2026-114938 on 2026-11-18) and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
 
 ```bash
 python -m patchorder demo --format html --output briefing.html
@@ -65,6 +65,28 @@ The demo has two fictional VPN gateway rows on Ivanti Connect Secure. The CVEs, 
 - `vpn-gateway-lab`, 22.8R2.5, internal: only CVE-2026-111357. NVD lists 22.8 r2.5 for that CVE but not for CVE-2026-104935.
 
 Ivanti release strings such as `22.8R2.4` are split into CPE version `22.8` and update `r2.4`, the way NVD writes them.
+
+The demo also has fictional Oracle Java SE rows for [CVE-2026-114938](https://nvd.nist.gov/vuln/detail/CVE-2026-114938) (also called Java4Shell). The id, CVSS, and affected versions are a recording of the official NVD document on 2026-11-18. At that time NVD status was `Received` and the record had no CPE `configurations`, so patchorder matches the Oracle CNA `affected` list: exact supported versions, not a reconstructed range.
+
+- `jdk-app`, Oracle Java SE 17.0.21.0.3, internet-facing: CVE-2026-114938 is affected (exact CNA version).
+- `jdk-app-patched`, 17.0.21.1, internet-facing: not affected. Oracle's Java 17 security baseline for the November 2026 Critical Security Patch Update is `17.0.21.1+4`.
+- `jdk-11`, 11.0.33.0.3, internal: not affected. The [OpenJDK advisory](https://openjdk.org/groups/vulnerability/advisories/2026-11-17) marks this CVE on the 17, 21, 25, and 27 lines, not 8 or 11. Oracle's CNA list also omits standard Java 8 and 11; it does list the Java 8 Enterprise Performance Pack build `8u511b33-perf`.
+
+Official CVSS 3.1 is 8.1 High (`CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H`), scored by Oracle and repeated in the OpenJDK advisory. The CVE was not in CISA KEV catalog version 2026.11.17, so the demo KEV fixture is unchanged. FIRST EPSS had no score for this id at recording time, so the finding has no EPSS points.
+
+Red Hat's bulletin describes OpenJDK 17.0.6 and later as affected on x86-64 CPUs with AVX-512 VBMI, and says standard OpenJDK 8 and 11 are not affected. That broader 17.0.6+ range is not in the NVD/CVE.org structured data yet, so the matcher does not invent it. A version such as 17.0.6 is therefore currently reported as outside the official exact list.
+
+Sources recorded or cited for this example:
+
+- [CVE.org record](https://www.cve.org/CVERecord?id=CVE-2026-114938) (CNA: Oracle)
+- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2026-114938)
+- [Oracle Critical Security Patch Update, November 2026](https://www.oracle.com/security-alerts/cspunov2026.html)
+- [OpenJDK Vulnerability Advisory: 2026/11/17](https://openjdk.org/groups/vulnerability/advisories/2026-11-17)
+- [CISA alert, 17 November 2026](https://www.cisa.gov/news-events/alerts/2026/11/17/critical-java-vulnerability-requires-immediate-patching)
+- [Red Hat security bulletin RHSB-2026-018](https://access.redhat.com/security/vulnerabilities/RHSB-2026-018)
+- Oracle fixed builds: [17.0.21.1](https://www.oracle.com/java/technologies/javase/17-0-21-1-relnotes.html), [21.0.13.1](https://www.oracle.com/java/technologies/javase/21-0-13-1-relnotes.html), [25.0.5.1](https://www.oracle.com/java/technologies/javase/25-0-5-1-relnotes.html), [27.0.1.1](https://www.oracle.com/java/technologies/javase/27-0-1-1-relnotes.html), and [8u513-perf](https://www.oracle.com/java/technologies/javase/8u513-perf-relnotes.html)
+- Amazon Corretto changelogs, which address this CVE in [17.0.21.1.2](https://github.com/corretto/corretto-17/blob/develop/CHANGELOG.md) and [27.0.1.1.4](https://github.com/corretto/corretto-27/blob/develop/CHANGELOG.md)
+- CISA KEV catalog version 2026.11.17 (not listed), checked at <https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json>
 
 ### Start from a spreadsheet
 
@@ -247,7 +269,7 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
+The suite currently has 96 tests. Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
 
 ## How to contribute
 
@@ -285,4 +307,4 @@ Neu in 0.2: `inventory from-csv` macht aus einem CSV-Export ein Inventar, `inven
 
 Für Windows-Geräte, die über Windows Autopatch aktualisiert werden, erklärt [docs/windows-autopatch.md](docs/windows-autopatch.md) mit Microsoft-Quellen, wie ein Fund zum Freigabemodell passt: automatische Freigabe mit 0 bis 30 Tagen Verzögerung für monatliche Sicherheitsupdates, manuelle Freigabe als Standard für Vorschau- und Out-of-Band-Updates, Beschleunigen und Pausieren.
 
-Neu: Jeder KEV-Fund nennt das `dueDate` aus dem CISA-Katalog und die Tage seit Ablauf. `--fail-on kev-overdue` schlägt nur bei abgelaufener Frist an. Die Punkte ändern sich dadurch nicht. Die Demo enthält zwei fiktive VPN-Gateways mit Ivanti Connect Secure und den echten KEV-Einträgen CVE-2026-104935 und CVE-2026-111357.
+Neu: Jeder KEV-Fund nennt das `dueDate` aus dem CISA-Katalog und die Tage seit Ablauf. `--fail-on kev-overdue` schlägt nur bei abgelaufener Frist an. Die Punkte ändern sich dadurch nicht. Die Demo enthält zwei fiktive VPN-Gateways mit Ivanti Connect Secure und den echten KEV-Einträgen CVE-2026-104935 und CVE-2026-111357 sowie fiktive Oracle-Java-SE-Zeilen zu CVE-2026-114938 (Java4Shell; offizieller CVSS-3.1-Wert 8.1, nicht im KEV-Katalog 2026.11.17, Abgleich über die exakten CNA-Versionen, weil die NVD am 18.11.2026 noch keine CPE-Konfigurationen hatte).

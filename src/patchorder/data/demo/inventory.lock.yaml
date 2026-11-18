@@ -66,3 +66,21 @@ entries:
     confidence: 1.0
     origin: user
     note: Pinned for the fictional Harbor Workshop demo.
+  jdk-app:
+    cpe: cpe:2.3:a:oracle:jdk
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  jdk-app-patched:
+    cpe: cpe:2.3:a:oracle:jdk
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
+  jdk-11:
+    cpe: cpe:2.3:a:oracle:jdk
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional Harbor Workshop demo.
