@@ -16,7 +16,7 @@ from patchorder.inventory import load_inventory
 from patchorder.lockfile import default_lock_path, load_lock
 from patchorder.versions import version_is_comparable
 
-FIELDS = ("id", "product", "vendor", "version", "count", "owner", "exposure")
+FIELDS = ("id", "product", "vendor", "version", "count", "owner", "exposure", "device_class")
 _HEADER_ALIASES = {
     "name": "product", "software": "product", "application": "product",
     "manufacturer": "vendor", "publisher": "vendor",
@@ -115,6 +115,8 @@ def csv_to_inventory(text: str, name: str, default_owner: str = "unassigned", de
         asset["count"] = count
         asset["owner"] = item.get("owner") or default_owner
         asset["exposure"] = exposure
+        if item.get("device_class"):
+            asset["device_class"] = item["device_class"]
         assets.append(asset)
     if not assets:
         raise PatchorderError("CSV has no data rows")
