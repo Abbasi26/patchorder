@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Inventory rows can set `device_class` to `windows` or `windows-server`. Shared build families such as 26100 then offer only the matching edition. A Windows Server vNext build (29621 or later), as documented for the Intune Insider preview, does not invent a CPE.
 - CI: the setuptools build backend is in the hash-pinned `requirements-ci.txt`, and the project is installed with `--no-build-isolation`, so the build no longer downloads an unhashed setuptools.
 - Dependabot: weekly Python updates (uv ecosystem) for `pyproject.toml`, `requirements-ci.in` and the hash-pinned `requirements-ci.txt`. `requirements-ci.txt` is now compiled from `requirements-ci.in` so Dependabot can recompile it with hashes.
 - Demo: fictional Oracle Java SE rows for CVE-2026-114938 (Java4Shell) with a recorded NVD document (status Received, official Oracle CVSS 3.1 8.1, CNA affected versions, no invented CPE ranges or EPSS). The CVE is not in the demo KEV catalog. `from_nvd_cve` now reads NVD `affected` / `affectedData` when present; CPE `configurations` still win when both exist.

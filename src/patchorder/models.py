@@ -14,6 +14,7 @@ class Asset:
     count: int
     owner: str
     exposure: str
+    device_class: str = ""
 
 
 @dataclass

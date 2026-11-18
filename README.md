@@ -223,7 +223,8 @@ The local matcher is the source of the affected / not affected / not decided lin
 - CVE List 5 `versions` blocks (`lessThan`, `lessThanOrEqual`, `status`, `defaultStatus`) when the record has no NVD configuration. Configurations win when both exist
 - Windows builds `10.0.<build>.<ubr>` and `6.*`. `10.0.22631.3593` is before `10.0.22631.4037`. The marketing name `2022` is not compared with a build
 - OpenSSH `9.8p1` sorts after `9.8`. OpenSSL `1.1.1w` sorts before `1.1.1x`
-- A build such as `10.0.22631.3593` on a row that only says "Windows 11" suggests `windows_11_23h2` and does not auto-use it. Build 26100 is offered as both Windows 11 24H2 and Windows Server 2025
+- A build such as `10.0.22631.3593` on a row that only says "Windows 11" suggests `windows_11_23h2` and does not auto-use it. Build 26100 is offered as both Windows 11 24H2 and Windows Server 2025, unless you set `device_class` to `windows` or `windows-server` (or the product name already says Windows Server)
+- Optional inventory field `device_class`: `windows` or `windows-server`. Use it when Intune-managed Windows Server devices should not share CPE candidates with Windows clients. Microsoft Intune can manage eligible Windows Server vNext builds (29621.1000 or later, Desktop Experience) only as a nonproduction Insider preview; see [What's new](https://learn.microsoft.com/en-us/intune/whats-new/) and the [preview guide](https://learn.microsoft.com/en-us/intune/solutions/end-to-end-guides/windows-server-endpoints-get-started). A 29621+ server row does not invent a Windows Server 2028 CPE; pin one after you have checked the dictionary
 - A negated CPE node, or an AND configuration that also requires a product this row does not name, is not decided
 
 The alias table is a starter set (nginx, NGINX Plus, OpenSSL, Apache HTTP Server, Tomcat, OpenSSH, PHP, curl, PostgreSQL, MySQL, MariaDB, and a handful of Windows releases). It is not a CPE dictionary. Pin the CPE after you have looked at the candidates.
@@ -269,7 +270,7 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-The suite currently has 96 tests. Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
+The suite has 103 pytest tests. Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
 
 ## How to contribute
 

@@ -6,6 +6,7 @@ import re
 
 from patchorder.aliases import BUILD_FAMILY, alias_candidates
 from patchorder.cpe import canonical_base
+from patchorder.deviceclass import filter_build_families, infer_device_class, preview_build_hint
 from patchorder.models import Asset, Candidate, LockEntry, Resolution
 from patchorder.normalize import tokens
 
@@ -38,6 +39,9 @@ def apply_build_hints(asset: Asset, candidates: list[Candidate]) -> list[Candida
             return candidates
         return candidates
     families = BUILD_FAMILY.get(build)
+    device_class = infer_device_class(asset)
+    if families:
+        families = filter_build_families(families, device_class)
     if not families:
         return candidates
     updated: list[Candidate] = []
@@ -155,10 +159,14 @@ def resolve_asset(
     candidates = apply_build_hints(asset, candidates)
     candidates = _dedupe(candidates)
     hint = ""
+    build = _windows_build(asset)
+    if build is not None:
+        hint = preview_build_hint(build, infer_device_class(asset))
     if not candidates and _looks_like_windows(asset):
-        hint = (
+        hint = hint or (
             "Name the Windows release (for example Windows 11 23H2 or Windows Server 2022) "
-            "or a build such as 10.0.22631.3593, then pin the CPE."
+            "or a build such as 10.0.22631.3593, then pin the CPE. "
+            "Set device_class to windows or windows-server when the product name is ambiguous."
         )
     elif not candidates:
         hint = "No alias or dictionary hit. Pin a CPE yourself, or run resolve with CPE discovery online."
