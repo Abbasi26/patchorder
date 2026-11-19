@@ -86,3 +86,50 @@ def test_dictionary_hit_merges_with_alias():
     top = resolution.candidates[0]
     assert top.cpe == "cpe:2.3:a:f5:nginx"
     assert top.confidence >= 0.93
+
+
+def test_redis_alias_resolves_to_redis_cpe():
+    resolution = resolve_asset(_asset(product="Redis", vendor="Redis", version="7.2.4"))
+    assert resolution.chosen is not None
+    assert resolution.chosen.cpe == "cpe:2.3:a:redis:redis"
+    assert resolution.chosen.confidence >= AUTO_USE_CONFIDENCE
+
+
+def test_haproxy_alias_resolves_to_haproxy_cpe():
+    resolution = resolve_asset(_asset(product="HAProxy", vendor="HAProxy Technologies", version="2.8.5"))
+    assert resolution.chosen is not None
+    assert resolution.chosen.cpe == "cpe:2.3:a:haproxy:haproxy"
+    assert resolution.chosen.confidence >= AUTO_USE_CONFIDENCE
+
+
+def test_varnish_alias_resolves_to_varnish_cpe():
+    resolution = resolve_asset(_asset(product="Varnish Cache", vendor="Varnish", version="7.6.0"))
+    assert resolution.chosen is not None
+    assert resolution.chosen.cpe == "cpe:2.3:a:varnish:varnish"
+    assert resolution.chosen.confidence >= AUTO_USE_CONFIDENCE
+
+
+def test_bind9_alias_resolves_to_isc_bind9_cpe():
+    resolution = resolve_asset(_asset(product="BIND 9", vendor="ISC", version="9.18.24"))
+    assert resolution.chosen is not None
+    assert resolution.chosen.cpe == "cpe:2.3:a:isc:bind9"
+    assert resolution.chosen.confidence >= AUTO_USE_CONFIDENCE
+
+
+def test_nodejs_alias_resolves_to_nodejs_cpe():
+    resolution = resolve_asset(_asset(product="Node.js", vendor="Node.js", version="20.11.1"))
+    assert resolution.chosen is not None
+    assert resolution.chosen.cpe == "cpe:2.3:a:nodejs:node.js"
+    assert resolution.chosen.confidence >= AUTO_USE_CONFIDENCE
+
+
+def test_new_aliases_do_not_add_alternate_entries():
+    from patchorder.aliases import ALTERNATES
+    for cpe in (
+        "cpe:2.3:a:redis:redis",
+        "cpe:2.3:a:haproxy:haproxy",
+        "cpe:2.3:a:varnish:varnish",
+        "cpe:2.3:a:isc:bind9",
+        "cpe:2.3:a:nodejs:node.js",
+    ):
+        assert cpe not in ALTERNATES
