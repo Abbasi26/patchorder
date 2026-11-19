@@ -25,7 +25,7 @@ class Gate:
 
 def parse_gate(text: str) -> Gate:
     value = text.strip().lower()
-    if value in {"kev", "new", "internet"}:
+    if value in {"kev", "kev-overdue", "new", "internet"}:
         return Gate(value)
     if value.startswith("priority:"):
         try:
@@ -43,7 +43,7 @@ def parse_gate(text: str) -> Gate:
         if not 0.0 <= threshold <= 1.0:
             raise PatchorderError(f"--fail-on {text}: epss is between 0 and 1", code=2)
         return Gate("epss", threshold)
-    raise PatchorderError(f"--fail-on {text}: use kev, new, internet, priority:N, or epss:N", code=2)
+    raise PatchorderError(f"--fail-on {text}: use kev, kev-overdue, new, internet, priority:N, or epss:N", code=2)
 
 
 def evaluate_gates(report: Report, gates: list[Gate]) -> list[str]:
@@ -52,6 +52,8 @@ def evaluate_gates(report: Report, gates: list[Gate]) -> list[str]:
     for gate in gates:
         if gate.kind == "kev":
             hits = [f for f in report.findings if f.kev]
+        elif gate.kind == "kev-overdue":
+            hits = [f for f in report.findings if f.kev and f.kev_overdue_days]
         elif gate.kind == "internet":
             hits = [f for f in report.findings if f.exposure == "internet"]
         elif gate.kind == "priority":

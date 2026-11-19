@@ -39,7 +39,6 @@ def _describe_match(match: dict, identity: CpeIdentity) -> str:
     version = identity.version
     update = identity.update
     start = match.get("versionStartIncluding") or match.get("versionStartExcluding")
-    end = match.get("versionEndIncluding") or match.get("versionEndExcluding")
     if not _wildcard(version):
         extra = "" if _wildcard(update) else f" update {update}"
         return f"exact {version}{extra}"

@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import io
 import json
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
@@ -16,13 +16,14 @@ from patchorder.inventory import load_inventory
 from patchorder.lockfile import default_lock_path, load_lock
 from patchorder.versions import version_is_comparable
 
-FIELDS = ("id", "product", "vendor", "version", "count", "owner", "exposure")
+FIELDS = ("id", "product", "vendor", "version", "count", "owner", "exposure", "device_class")
 _HEADER_ALIASES = {
     "name": "product", "software": "product", "application": "product",
     "manufacturer": "vendor", "publisher": "vendor",
     "hosts": "count", "devices": "count", "installs": "count",
     "team": "owner", "responsible": "owner",
     "exposed": "exposure", "network": "exposure",
+    "asset": "id", "hostname_group": "id", "asset_id": "id", "identifier": "id",
 }
 
 
@@ -65,6 +66,11 @@ def check_inventory(path: Path, lock_path: Path | None = None) -> list[Inventory
         if not ok:
             notes.append(InventoryNote("warning", asset.id, f"{reason}; every CVE for this row will be 'not decided'"))
     return notes
+
+
+def notes_to_json(notes: list[InventoryNote]) -> str:
+    """Serialize inventory notes as a JSON array with stable key order."""
+    return json.dumps([asdict(note) for note in notes], ensure_ascii=False, separators=(",", ":"))
 
 
 def _normalize_header(name: str) -> str:
@@ -115,6 +121,8 @@ def csv_to_inventory(text: str, name: str, default_owner: str = "unassigned", de
         asset["count"] = count
         asset["owner"] = item.get("owner") or default_owner
         asset["exposure"] = exposure
+        if item.get("device_class"):
+            asset["device_class"] = item["device_class"]
         assets.append(asset)
     if not assets:
         raise PatchorderError("CSV has no data rows")

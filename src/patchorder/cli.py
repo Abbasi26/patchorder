@@ -81,6 +81,7 @@ def _parser() -> argparse.ArgumentParser:
     inv_check.add_argument("inventory", type=Path)
     inv_check.add_argument("-l", "--lock", type=Path, help="lock file (default: next to the inventory)")
     inv_check.add_argument("--strict", action="store_true", help="exit 4 on warnings too")
+    inv_check.add_argument("--json", action="store_true", help="emit notes as JSON array (level, asset_id, text)")
     inv_check.set_defaults(func=cmd_inventory_check)
     inv_csv = inv_sub.add_parser("from-csv", help="turn a CSV export into inventory YAML (printed unless --output)")
     inv_csv.add_argument("csv", type=Path)
@@ -99,11 +100,16 @@ def _format_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--format", choices=("md", "html", "json", "csv"), default="md")
     parser.add_argument("--output", type=Path, help="write the briefing to this file")
     parser.add_argument(
+        "--columns",
+        metavar="NAMES",
+        help="with --format csv: comma-separated columns in the order to write (default: all)",
+    )
+    parser.add_argument(
         "--fail-on",
         action="append",
         default=[],
         metavar="GATE",
-        help="exit 4 when a finding matches: kev, new (needs --state), internet, priority:N, or epss:N (repeatable)",
+        help="exit 4 when a finding matches: kev, kev-overdue, new (needs --state), internet, priority:N, or epss:N (repeatable)",
     )
 
 
@@ -120,11 +126,23 @@ def _client(args) -> HttpClient:
     return HttpClient(Cache(args.cache_dir), offline=args.offline, refresh=args.refresh)
 
 
-def _render(report, fmt: str) -> str:
-    if fmt == "csv":
-        from patchorder.csvout import render_csv
+def _columns(args) -> tuple[str, ...] | None:
+    """Validate --columns before any work is done. Returns None when not given."""
+    value = getattr(args, "columns", None)
+    if value is None:
+        return None
+    if args.format != "csv":
+        raise PatchorderError("--columns only applies to --format csv", code=2)
+    from patchorder.csvout import parse_columns
 
-        return render_csv(report)
+    return parse_columns(value)
+
+
+def _render(report, fmt: str, columns: tuple[str, ...] | None = None) -> str:
+    if fmt == "csv":
+        from patchorder.csvout import COLUMNS, render_csv
+
+        return render_csv(report, columns or COLUMNS)
     return render(report, fmt)
 
 
@@ -149,6 +167,7 @@ def _apply_gates(report, gates) -> int:
 
 def cmd_demo(args: argparse.Namespace) -> int:
     gates = _gates(args)
+    columns = _columns(args)
     if getattr(args, "llm", False):
         raise PatchorderError(
             "demo mode does not call an LLM endpoint. Use --llm-preview to print the request body."
@@ -156,8 +175,8 @@ def cmd_demo(args: argparse.Namespace) -> int:
     report = run_demo()
     if args.llm_preview:
         report.llm_preview = preview_json(cve_texts(report.findings), os.environ.get("PATCHORDER_LLM_MODEL", "unset"))
-    _emit(_render(report, args.format), args.output)
-    print("patchorder demo: offline, fixtures recorded 2026-10-21", file=sys.stderr)
+    _emit(_render(report, args.format, columns), args.output)
+    print("patchorder demo: offline, fixtures recorded 2026-10-21, 2026-11-03 and 2026-11-18", file=sys.stderr)
     return _apply_gates(report, gates)
 
 
@@ -254,6 +273,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
         print("--llm-preview is set, so the endpoint is not called.", file=sys.stderr)
         args.llm = False
     gates = _gates(args)
+    columns = _columns(args)
     if any(g.kind == "new" for g in gates) and not args.state:
         raise PatchorderError("--fail-on new needs --state with a previous run's state file", code=2)
     inventory = load_inventory(args.inventory)
@@ -304,7 +324,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     except PatchorderError:
         raise
     _maybe_llm(args, report)
-    _emit(_render(report, args.format), args.output)
+    _emit(_render(report, args.format, columns), args.output)
     if args.save_state:
         ids = [finding.cve_id for finding in report.findings]
         args.save_state.parent.mkdir(parents=True, exist_ok=True)
@@ -353,9 +373,17 @@ def _maybe_llm(args, report) -> None:
 
 
 def cmd_inventory_check(args: argparse.Namespace) -> int:
-    from patchorder.inventorytools import check_inventory
+    from patchorder.inventorytools import check_inventory, notes_to_json
 
     notes = check_inventory(args.inventory, args.lock)
+    if args.json:
+        print(notes_to_json(notes))
+        counts = {"error": 0, "warning": 0, "info": 0}
+        for note in notes:
+            counts[note.level] += 1
+        if args.strict and counts["warning"]:
+            return 4
+        return 0
     counts = {"error": 0, "warning": 0, "info": 0}
     for note in notes:
         counts[note.level] += 1

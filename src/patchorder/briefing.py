@@ -9,7 +9,18 @@ from collections import OrderedDict
 from patchorder.report import Finding, Report
 
 
-def _action(finding: Finding, extra: int) -> str:
+def _due_text(finding: Finding, as_of: str | None) -> str:
+    """One clause about the KEV dueDate, or an empty string when there is none."""
+    if not finding.kev_due_date:
+        return ""
+    days = finding.kev_overdue_days
+    if days:
+        unit = "day" if days == 1 else "days"
+        return f"KEV due date {finding.kev_due_date} passed {days} {unit} before {as_of}"
+    return f"KEV due date {finding.kev_due_date}"
+
+
+def _action(finding: Finding, extra: int, as_of: str | None = None) -> str:
     where = "internet-facing" if finding.exposure == "internet" else "internal"
     sentence = (
         f"Patch {finding.product} {finding.version} on {finding.count} {where} hosts "
@@ -17,6 +28,9 @@ def _action(finding: Finding, extra: int) -> str:
     )
     if finding.kev:
         sentence += f" {finding.cve_id} is listed in CISA KEV (exploited in the wild)."
+        due = _due_text(finding, as_of)
+        if due:
+            sentence += f" {due}."
     else:
         sentence += f" Highest issue: {finding.cve_id}."
     if finding.fixed_hint:
@@ -36,7 +50,7 @@ def _top_actions(report: Report) -> list[tuple[Finding, int]]:
     return [(items[0], len(items) - 1) for items in ranked[:10]]
 
 
-def _md_finding(finding: Finding) -> str:
+def _md_finding(finding: Finding, as_of: str | None = None) -> str:
     severity = finding.severity or "unscored"
     cvss = "n/a" if finding.cvss is None else f"{finding.cvss:.1f}"
     pin = "pinned" if finding.cpe_confirmed else "not pinned"
@@ -59,6 +73,7 @@ def _md_finding(finding: Finding) -> str:
         lines.append(
             f"- CISA KEV: {finding.kev_name or finding.cve_id}"
             + (f", added {finding.kev_date}" if finding.kev_date else "")
+            + (f", {_due_text(finding, as_of)}" if finding.kev_due_date else "")
         )
     if finding.ransomware:
         lines.append("- Known ransomware campaign use: yes (CISA flag)")
@@ -90,7 +105,7 @@ def render_markdown(report: Report) -> str:
         lines.append("No affected versions in the records loaded for this run.")
     else:
         for index, (finding, extra) in enumerate(actions, start=1):
-            lines.append(f"{index}. {_action(finding, extra)} Priority {finding.points:.2f}.")
+            lines.append(f"{index}. {_action(finding, extra, report.as_of)} Priority {finding.points:.2f}.")
             lines.append("")
     lines.append("## New since last run")
     lines.append("")
@@ -114,7 +129,7 @@ def render_markdown(report: Report) -> str:
         lines.append("None.")
     else:
         for finding in report.findings:
-            lines.append(_md_finding(finding))
+            lines.append(_md_finding(finding, report.as_of))
             lines.append("")
     lines.append("## Not affected")
     lines.append("")
@@ -195,7 +210,7 @@ def render_html(report: Report) -> str:
         items = []
         for finding, extra in actions:
             klass = "kev" if finding.kev else ""
-            items.append(f"<li class=\"{klass}\">{esc(_action(finding, extra))} Priority {finding.points:.2f}.</li>")
+            items.append(f"<li class=\"{klass}\">{esc(_action(finding, extra, report.as_of))} Priority {finding.points:.2f}.</li>")
         action_html = "<ol>" + "".join(items) + "</ol>"
     rows = []
     for finding in report.findings:
@@ -204,7 +219,7 @@ def render_html(report: Report) -> str:
             f"<td><code>{esc(finding.cve_id)}</code></td>"
             f"<td>{esc(finding.product)} {esc(finding.version)}<br><code>{esc(finding.cpe)}</code></td>"
             f"<td>{finding.points:.2f}</td>"
-            f"<td>{'KEV' if finding.kev else ''}</td>"
+            f"<td>{_kev_cell(finding)}</td>"
             f"<td>{esc(finding.fixed_hint or '')}</td>"
             "</tr>"
         )
@@ -279,6 +294,14 @@ a {{ color: #1f4e3d; }}
 """
 
 
+def _kev_cell(finding: Finding) -> str:
+    if not finding.kev:
+        return ""
+    if finding.kev_overdue_days:
+        return f"KEV, overdue {finding.kev_overdue_days} d"
+    return "KEV"
+
+
 def _finding_dict(finding: Finding) -> dict:
     return {
         "asset_id": finding.asset_id,
@@ -301,6 +324,8 @@ def _finding_dict(finding: Finding) -> dict:
         "kev": finding.kev,
         "kev_name": finding.kev_name,
         "kev_date": finding.kev_date,
+        "kev_due_date": finding.kev_due_date,
+        "kev_overdue_days": finding.kev_overdue_days,
         "points": finding.points,
         "score": [{"points": part.points, "text": part.text} for part in finding.parts],
         "reason": finding.reason,
@@ -312,12 +337,13 @@ def _finding_dict(finding: Finding) -> dict:
 
 def render_json(report: Report) -> str:
     actions = [
-        {"asset_id": finding.asset_id, "cve_id": finding.cve_id, "points": finding.points, "text": _action(finding, extra)}
+        {"asset_id": finding.asset_id, "cve_id": finding.cve_id, "points": finding.points, "text": _action(finding, extra, report.as_of)}
         for finding, extra in _top_actions(report)
     ]
     payload = {
         "tool": "patchorder",
         "generated_at": report.generated_at,
+        "as_of": report.as_of,
         "mode": report.mode,
         "read_only": True,
         "inventory_name": report.name,

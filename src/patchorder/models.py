@@ -14,6 +14,7 @@ class Asset:
     count: int
     owner: str
     exposure: str
+    device_class: str = ""
 
 
 @dataclass
@@ -62,6 +63,7 @@ class Record:
     published: str | None = None
     cisa_exploit_add: str | None = None
     cisa_name: str | None = None
+    cisa_action_due: str | None = None
     source: str = "nvd"
 
 
@@ -80,6 +82,7 @@ class KevEntry:
     date_added: str | None
     short_description: str
     ransomware: str | None = None
+    due_date: str | None = None
 
 
 @dataclass
