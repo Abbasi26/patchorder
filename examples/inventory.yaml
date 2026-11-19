@@ -30,6 +30,7 @@ assets:
     count: 8
     owner: windows
     exposure: internal
+    device_class: windows-server
   - id: file-servers-patched
     product: Windows Server 2022
     vendor: Microsoft
@@ -37,6 +38,7 @@ assets:
     count: 5
     owner: windows
     exposure: internal
+    device_class: windows-server
   - id: analyst-laptops
     product: Windows 11 23H2
     vendor: Microsoft
@@ -44,6 +46,7 @@ assets:
     count: 15
     owner: it
     exposure: internal
+    device_class: windows
   - id: bastion-ssh
     product: OpenSSH
     vendor: OpenBSD
@@ -65,10 +68,46 @@ assets:
     count: 6
     owner: windows
     exposure: internal
+    device_class: windows-server
   - id: custom-connector
     product: Harbor Connector
     vendor: Example Works
     version: "1.4.0"
     count: 4
+    owner: apps
+    exposure: internal
+  - id: vpn-gateway
+    product: Ivanti Connect Secure
+    vendor: Ivanti
+    version: "22.8R2.4"
+    count: 2
+    owner: network
+    exposure: internet
+  - id: vpn-gateway-lab
+    product: Ivanti Connect Secure
+    vendor: Ivanti
+    version: "22.8R2.5"
+    count: 1
+    owner: network
+    exposure: internal
+  - id: jdk-app
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "17.0.21.0.3"
+    count: 5
+    owner: apps
+    exposure: internet
+  - id: jdk-app-patched
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "17.0.21.1"
+    count: 2
+    owner: apps
+    exposure: internet
+  - id: jdk-11
+    product: Oracle Java SE
+    vendor: Oracle
+    version: "11.0.33.0.3"
+    count: 3
     owner: apps
     exposure: internal

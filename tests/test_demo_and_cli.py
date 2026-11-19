@@ -34,13 +34,27 @@ def test_demo_briefing_answers_the_question():
     assert "bastion-fixed" not in by_asset
     assert "server-name-only" not in by_asset
     assert "custom-connector" not in by_asset
-    assert report.new_cve_ids == ["CVE-2023-44487", "CVE-2024-38063"]
+    assert "jdk-app-patched" not in by_asset
+    assert "jdk-11" not in by_asset
+    assert by_asset["jdk-app"][0].cve_id == "CVE-2026-114938"
+    assert by_asset["jdk-app"][0].cvss == 8.1
+    assert by_asset["jdk-app"][0].kev is False
+    assert by_asset["jdk-app"][0].epss is None
+    assert report.new_cve_ids == [
+        "CVE-2023-44487",
+        "CVE-2024-38063",
+        "CVE-2026-104935",
+        "CVE-2026-111357",
+        "CVE-2026-114938",
+    ]
     kinds = {(note.asset_id, note.kind) for note in report.notes}
     assert ("edge-current", "not_affected") in kinds
     assert ("file-servers-patched", "not_affected") in kinds
     assert ("bastion-fixed", "not_affected") in kinds
     assert ("server-name-only", "not_decided") in kinds
     assert ("custom-connector", "unresolved") in kinds
+    assert ("jdk-app-patched", "not_affected") in kinds
+    assert ("jdk-11", "not_affected") in kinds
     # Score lines are the formula, not a hidden weight.
     blob = " ".join(part.text for part in by_asset["edge-proxy"][0].parts)
     assert "CISA KEV" in blob

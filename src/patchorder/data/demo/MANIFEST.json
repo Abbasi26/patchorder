@@ -1,6 +1,6 @@
 {
-  "recorded": "2026-10-21",
-  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchorder fixture), not copies of published advisories. The KEV vulnerabilities array contains 1 of the catalog's published entries.",
+  "recorded": "2026-10-21; Ivanti Connect Secure records, KEV header and the two Ivanti EPSS rows 2026-11-03; CVE-2026-114938 NVD record 2026-11-18",
+  "note": "NVD and KEV bodies are reduced recordings: English description, CVSS base score, and the CPE matches the demo decides. They are not full upstream documents. The EPSS file and KEV catalog header are recorded responses. The CSAF files are fictional (Example CERT and a patchorder fixture), not copies of published advisories. The KEV vulnerabilities array contains 3 of the catalog's published entries (catalog 2026.10.30). The Ivanti Connect Secure and Oracle Java SE rows in the inventory are fictional hosts. The CVE ids, KEV entries, NVD configurations and EPSS scores for the existing demo CVEs are real recordings. CVE-2026-114938 is a recording of the NVD 2.0 document as of 2026-11-18: vulnStatus Received, official Oracle CVSS 3.1 8.1, and the CNA affected version list. NVD published no CPE configurations and FIRST EPSS returned no score, so those fields are omitted rather than invented. The CVE is not in the recorded KEV catalog (and was not in CISA KEV catalog 2026.11.17).",
   "sources": {
     "nvd_cve": "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=",
     "epss": "https://api.first.org/data/v1/epss",

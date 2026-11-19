@@ -11,6 +11,7 @@ from patchorder.errors import PatchorderError
 from patchorder.models import Asset, Inventory
 
 _EXPOSURES = {"internet": "internet", "internal": "internal"}
+_DEVICE_CLASSES = {"windows": "windows", "windows-client": "windows", "windows-server": "windows-server"}
 _SLUG = re.compile(r"[^a-z0-9]+")
 
 
@@ -48,6 +49,23 @@ def _slug(vendor: str, product: str, version: str, used: set[str]) -> str:
         number += 1
     used.add(slug)
     return slug
+
+
+
+def _parse_device_class(value: object, where: str) -> str:
+    if value is None or value == "":
+        return ""
+    if isinstance(value, bool) or not isinstance(value, str):
+        raise PatchorderError(
+            f"{where} device_class must be windows, windows-server, or omitted"
+        )
+    key = value.strip().lower()
+    parsed = _DEVICE_CLASSES.get(key)
+    if parsed is None:
+        raise PatchorderError(
+            f"{where} device_class {value!r} must be windows, windows-server, or omitted"
+        )
+    return parsed
 
 
 def load_inventory(path: Path) -> Inventory:
@@ -95,6 +113,7 @@ def load_inventory(path: Path) -> Inventory:
         exposure = _EXPOSURES.get(exposure_raw.strip().lower())
         if exposure is None:
             raise PatchorderError(f"{where} exposure must be internet or internal")
+        device_class = _parse_device_class(raw.get("device_class"), where)
         asset_id = raw.get("id")
         if asset_id is None or asset_id == "":
             asset_id = _slug(vendor, product, version, used)
@@ -114,6 +133,7 @@ def load_inventory(path: Path) -> Inventory:
                 count=count,
                 owner=owner.strip(),
                 exposure=exposure,
+                device_class=device_class,
             )
         )
     return Inventory(name=name.strip(), assets=loaded, source=str(path))

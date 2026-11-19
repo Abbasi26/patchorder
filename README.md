@@ -15,6 +15,7 @@
 # patchorder
 
 [![CI](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbasi26/patchorder/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Which public CVEs apply to the versions in a local inventory, and what to patch first.
 
@@ -45,7 +46,7 @@ python -m pip install -e .
 python -m patchorder demo
 ```
 
-`demo` reads bundled fixtures recorded on 2026-10-21 and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
+`demo` reads bundled fixtures recorded on 2026-10-21 (Ivanti Connect Secure records on 2026-11-03, CVE-2026-114938 on 2026-11-18) and does not use the network. Add `--format html` or `--format json`. `--output briefing.md` is the explicit way to write a file. With no `--output`, nothing is written.
 
 ```bash
 python -m patchorder demo --format html --output briefing.html
@@ -53,6 +54,39 @@ python -m patchorder demo --llm-preview
 ```
 
 `--llm-preview` prints the request body and does not send it. The body is CVE identifiers and description text only.
+
+### KEV due dates
+
+Every CISA KEV entry has a `dueDate`. patchorder copies it into each KEV finding and counts the days past it on the run's UTC date (`as_of` in JSON). It reads `cisaActionDue` from the NVD record when no KEV file was loaded. The date shows up in the top actions, the Markdown details, the HTML table, JSON (`kev_due_date`, `kev_overdue_days`), and two new CSV columns at the end. Points do not change. KEV listing already scores 40 points, and a due date set for US federal agencies is not a risk measure for other estates.
+
+The demo has two fictional VPN gateway rows on Ivanti Connect Secure. The CVEs, KEV entries, NVD configurations, and EPSS scores are real recordings:
+
+- `vpn-gateway`, 22.8R2.4, internet-facing: [CVE-2026-104935](https://nvd.nist.gov/vuln/detail/CVE-2026-104935) (KEV added 2026-10-13, due 2026-10-16) and [CVE-2026-111357](https://nvd.nist.gov/vuln/detail/CVE-2026-111357) (KEV added 2026-10-30, due 2026-11-02).
+- `vpn-gateway-lab`, 22.8R2.5, internal: only CVE-2026-111357. NVD lists 22.8 r2.5 for that CVE but not for CVE-2026-104935.
+
+Ivanti release strings such as `22.8R2.4` are split into CPE version `22.8` and update `r2.4`, the way NVD writes them.
+
+The demo also has fictional Oracle Java SE rows for [CVE-2026-114938](https://nvd.nist.gov/vuln/detail/CVE-2026-114938) (also called Java4Shell). The id, CVSS, and affected versions are a recording of the official NVD document on 2026-11-18. At that time NVD status was `Received` and the record had no CPE `configurations`, so patchorder matches the Oracle CNA `affected` list: exact supported versions, not a reconstructed range.
+
+- `jdk-app`, Oracle Java SE 17.0.21.0.3, internet-facing: CVE-2026-114938 is affected (exact CNA version).
+- `jdk-app-patched`, 17.0.21.1, internet-facing: not affected. Oracle's Java 17 security baseline for the November 2026 Critical Security Patch Update is `17.0.21.1+4`.
+- `jdk-11`, 11.0.33.0.3, internal: not affected. The [OpenJDK advisory](https://openjdk.org/groups/vulnerability/advisories/2026-11-17) marks this CVE on the 17, 21, 25, and 27 lines, not 8 or 11. Oracle's CNA list also omits standard Java 8 and 11; it does list the Java 8 Enterprise Performance Pack build `8u511b33-perf`.
+
+Official CVSS 3.1 is 8.1 High (`CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H`), scored by Oracle and repeated in the OpenJDK advisory. The CVE was not in CISA KEV catalog version 2026.11.17, so the demo KEV fixture is unchanged. FIRST EPSS had no score for this id at recording time, so the finding has no EPSS points.
+
+Red Hat's bulletin describes OpenJDK 17.0.6 and later as affected on x86-64 CPUs with AVX-512 VBMI, and says standard OpenJDK 8 and 11 are not affected. That broader 17.0.6+ range is not in the NVD/CVE.org structured data yet, so the matcher does not invent it. A version such as 17.0.6 is therefore currently reported as outside the official exact list.
+
+Sources recorded or cited for this example:
+
+- [CVE.org record](https://www.cve.org/CVERecord?id=CVE-2026-114938) (CNA: Oracle)
+- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2026-114938)
+- [Oracle Critical Security Patch Update, November 2026](https://www.oracle.com/security-alerts/cspunov2026.html)
+- [OpenJDK Vulnerability Advisory: 2026/11/17](https://openjdk.org/groups/vulnerability/advisories/2026-11-17)
+- [CISA alert, 17 November 2026](https://www.cisa.gov/news-events/alerts/2026/11/17/critical-java-vulnerability-requires-immediate-patching)
+- [Red Hat security bulletin RHSB-2026-018](https://access.redhat.com/security/vulnerabilities/RHSB-2026-018)
+- Oracle fixed builds: [17.0.21.1](https://www.oracle.com/java/technologies/javase/17-0-21-1-relnotes.html), [21.0.13.1](https://www.oracle.com/java/technologies/javase/21-0-13-1-relnotes.html), [25.0.5.1](https://www.oracle.com/java/technologies/javase/25-0-5-1-relnotes.html), [27.0.1.1](https://www.oracle.com/java/technologies/javase/27-0-1-1-relnotes.html), and [8u513-perf](https://www.oracle.com/java/technologies/javase/8u513-perf-relnotes.html)
+- Amazon Corretto changelogs, which address this CVE in [17.0.21.1.2](https://github.com/corretto/corretto-17/blob/develop/CHANGELOG.md) and [27.0.1.1.4](https://github.com/corretto/corretto-27/blob/develop/CHANGELOG.md)
+- CISA KEV catalog version 2026.11.17 (not listed), checked at <https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json>
 
 ### Start from a spreadsheet
 
@@ -73,9 +107,10 @@ python -m patchorder inventory check inventory.yaml
 python -m patchorder scan -i inventory.yaml --fail-on kev --fail-on priority:70
 python -m patchorder scan -i inventory.yaml --state .patchorder/state.json --save-state --fail-on new
 python -m patchorder demo --fail-on kev    # exits 4: nginx 1.25.2 is affected by a KEV-listed CVE
+python -m patchorder demo --fail-on kev-overdue    # exits 4: KEV due dates on nginx and the VPN gateways have passed
 ```
 
-The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
+The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `kev-overdue` (a KEV finding whose due date is before the run's UTC date), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), or `priority:N` (any finding at or above N points). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
 
 ### Findings as CSV
 
@@ -84,6 +119,8 @@ python -m patchorder demo --format csv --output findings.csv
 ```
 
 One row per finding, sorted by priority, with KEV, EPSS, CVSS, the fixed-version hint, the CPE, and whether it is new since the last run. Cells that start with `=`, `+`, `-`, or `@` are prefixed with `'` so a spreadsheet does not run them as formulas.
+
+`--columns cve_id,priority,owner,fixed_hint` writes only those columns, in that order, for a ticket import that expects a fixed layout. An unknown or repeated name stops the run with exit 2 and lists the valid names. Without `--columns` the file is unchanged.
 
 ## Real usage
 
@@ -186,10 +223,15 @@ The local matcher is the source of the affected / not affected / not decided lin
 - CVE List 5 `versions` blocks (`lessThan`, `lessThanOrEqual`, `status`, `defaultStatus`) when the record has no NVD configuration. Configurations win when both exist
 - Windows builds `10.0.<build>.<ubr>` and `6.*`. `10.0.22631.3593` is before `10.0.22631.4037`. The marketing name `2022` is not compared with a build
 - OpenSSH `9.8p1` sorts after `9.8`. OpenSSL `1.1.1w` sorts before `1.1.1x`
-- A build such as `10.0.22631.3593` on a row that only says "Windows 11" suggests `windows_11_23h2` and does not auto-use it. Build 26100 is offered as both Windows 11 24H2 and Windows Server 2025
+- A build such as `10.0.22631.3593` on a row that only says "Windows 11" suggests `windows_11_23h2` and does not auto-use it. Build 26100 is offered as both Windows 11 24H2 and Windows Server 2025, unless you set `device_class` to `windows` or `windows-server` (or the product name already says Windows Server)
+- Optional inventory field `device_class`: `windows` or `windows-server`. Use it when Intune-managed Windows Server devices should not share CPE candidates with Windows clients. Microsoft Intune can manage eligible Windows Server vNext builds (29621.1000 or later, Desktop Experience) only as a nonproduction Insider preview; see [What's new](https://learn.microsoft.com/en-us/intune/whats-new/) and the [preview guide](https://learn.microsoft.com/en-us/intune/solutions/end-to-end-guides/windows-server-endpoints-get-started). A 29621+ server row does not invent a Windows Server 2028 CPE; pin one after you have checked the dictionary
 - A negated CPE node, or an AND configuration that also requires a product this row does not name, is not decided
 
 The alias table is a starter set (nginx, NGINX Plus, OpenSSL, Apache HTTP Server, Tomcat, OpenSSH, PHP, curl, PostgreSQL, MySQL, MariaDB, and a handful of Windows releases). It is not a CPE dictionary. Pin the CPE after you have looked at the candidates.
+
+### Windows Autopatch
+
+patchorder does not deploy updates. If your Windows devices are updated through Windows Autopatch, [docs/windows-autopatch.md](docs/windows-autopatch.md) explains how a finding such as "Update to 10.0.22631.4037 or later" meets the Autopatch approval settings: automatic approval with a 0 to 30 day deferral for monthly security updates, manual approval by default for preview and out-of-band releases, expedite, and pause. Every Autopatch statement there cites a Microsoft source.
 
 ## Required permissions
 
@@ -228,7 +270,7 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
+The suite has 103 pytest tests. Pytest blocks sockets. CI runs the same suite on Python 3.11, 3.12, and 3.13, then runs the offline demo with `--fail-on kev` (expected to exit 4) and `inventory check` on the example (`.github/workflows/ci.yml`).
 
 ## How to contribute
 
@@ -263,3 +305,7 @@ Die Priorität setzt sich aus CISA KEV, EPSS, CVSS, Erreichbarkeit, Anzahl und e
 Es wird keine eigene Datenbank aufgebaut. Ein Live-Lauf fragt Vulnerability-Lookup, die NVD-API 2.0, den CISA-KEV-Katalog, die EPSS-API und lokal vorliegende CSAF-Dokumente (CERT-Bund veröffentlicht sie unter <https://wid.cert-bund.de/.well-known/csaf/>). Der vollständige WID-Feed wird nicht heruntergeladen. `patchorder demo` läuft ohne Netz auf mitgelieferten Beispieldaten. Es gibt keine Telemetrie. Das Inventar bleibt auf dem Rechner. Ein optionales LLM ist standardmäßig aus und bekommt nur CVE-Texte, nie das Inventar.
 
 Neu in 0.2: `inventory from-csv` macht aus einem CSV-Export ein Inventar, `inventory check` prüft es offline, und `--fail-on kev|new|internet|priority:N` beendet einen CI- oder Nachtlauf mit Exit-Code 4, wenn ein passender Fund auftaucht.
+
+Für Windows-Geräte, die über Windows Autopatch aktualisiert werden, erklärt [docs/windows-autopatch.md](docs/windows-autopatch.md) mit Microsoft-Quellen, wie ein Fund zum Freigabemodell passt: automatische Freigabe mit 0 bis 30 Tagen Verzögerung für monatliche Sicherheitsupdates, manuelle Freigabe als Standard für Vorschau- und Out-of-Band-Updates, Beschleunigen und Pausieren.
+
+Neu: Jeder KEV-Fund nennt das `dueDate` aus dem CISA-Katalog und die Tage seit Ablauf. `--fail-on kev-overdue` schlägt nur bei abgelaufener Frist an. Die Punkte ändern sich dadurch nicht. Die Demo enthält zwei fiktive VPN-Gateways mit Ivanti Connect Secure und den echten KEV-Einträgen CVE-2026-104935 und CVE-2026-111357 sowie fiktive Oracle-Java-SE-Zeilen zu CVE-2026-114938 (Java4Shell; offizieller CVSS-3.1-Wert 8.1, nicht im KEV-Katalog 2026.11.17, Abgleich über die exakten CNA-Versionen, weil die NVD am 18.11.2026 noch keine CPE-Konfigurationen hatte).

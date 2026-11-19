@@ -28,10 +28,10 @@ def test_parse_gate():
 
 def test_gates_on_demo():
     report = run_demo()
-    assert evaluate_gates(report, [parse_gate("kev")])[0].startswith("--fail-on kev: 1 finding(s) (edge-proxy:CVE-2023-44487")
+    assert evaluate_gates(report, [parse_gate("kev")])[0].startswith("--fail-on kev: 4 finding(s) (edge-proxy:CVE-2023-44487, vpn-gateway-lab:CVE-2026-111357")
     assert evaluate_gates(report, [parse_gate("priority:95")]) == []
     assert len(evaluate_gates(report, [parse_gate("priority:40"), parse_gate("internet")])) == 2
-    assert "3 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
+    assert "7 finding(s)" in evaluate_gates(report, [parse_gate("new")])[0]
     with pytest.raises(PatchorderError):
         evaluate_gates(replace(report, new_cve_ids=None), [parse_gate("new")])
 
@@ -214,3 +214,17 @@ def test_inventory_check_strict_json_exit_code(tmp_path, capsys):
         encoding="utf-8",
     )
     assert main(["inventory", "check", str(inv), "--json", "--strict"]) == 4
+
+
+def test_csv_import_id_column_aliases(tmp_path):
+    for header in ("asset", "hostname_group", "asset_id", "identifier"):
+        text = f"product,version,{header}\nnginx,1.27.2,my-group\n"
+        yaml_text = csv_to_inventory(text, "Test")
+        data = yaml.safe_load(yaml_text)
+        assert data["assets"][0]["id"] == "my-group", f"header {header!r} should map to id"
+    # Also test CLI
+    src = tmp_path / "hosts.csv"
+    src.write_text("product,version,asset\nnginx,1.27.2,edge-group\n", encoding="utf-8")
+    assert main(["inventory", "from-csv", str(src), "--output", str(tmp_path / "inv.yaml")]) == 0
+    inv = load_inventory(tmp_path / "inv.yaml")
+    assert inv.assets[0].id == "edge-group"
