@@ -147,3 +147,17 @@ def test_cli_from_csv_writes_only_with_output(tmp_path, capsys):
     out = tmp_path / "inventory.yaml"
     assert main(["inventory", "from-csv", str(src), "--output", str(out)]) == 0
     assert load_inventory(out).assets[0].version == "1.27.2"
+
+
+def test_csv_import_id_column_aliases(tmp_path):
+    for header in ("asset", "hostname_group", "asset_id", "identifier"):
+        text = f"product,version,{header}\nnginx,1.27.2,my-group\n"
+        yaml_text = csv_to_inventory(text, "Test")
+        data = yaml.safe_load(yaml_text)
+        assert data["assets"][0]["id"] == "my-group", f"header {header!r} should map to id"
+    # Also test CLI
+    src = tmp_path / "hosts.csv"
+    src.write_text("product,version,asset\nnginx,1.27.2,edge-group\n", encoding="utf-8")
+    assert main(["inventory", "from-csv", str(src), "--output", str(tmp_path / "inv.yaml")]) == 0
+    inv = load_inventory(tmp_path / "inv.yaml")
+    assert inv.assets[0].id == "edge-group"

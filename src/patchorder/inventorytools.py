@@ -23,6 +23,7 @@ _HEADER_ALIASES = {
     "hosts": "count", "devices": "count", "installs": "count",
     "team": "owner", "responsible": "owner",
     "exposed": "exposure", "network": "exposure",
+    "asset": "id", "hostname_group": "id", "asset_id": "id", "identifier": "id",
 }
 
 
