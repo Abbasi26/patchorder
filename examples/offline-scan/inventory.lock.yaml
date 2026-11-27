@@ -1,0 +1,8 @@
+schema: patchorder.lock/v1
+entries:
+  example-edge-proxy:
+    cpe: cpe:2.3:a:f5:nginx
+    pinned: true
+    confidence: 1.0
+    origin: user
+    note: Pinned for the fictional offline workflow example.

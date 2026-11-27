@@ -1,0 +1,11 @@
+# Fictional inventory for the offline GitHub Actions example.
+schema: patchorder.inventory/v1
+name: Offline scan example (fictional)
+assets:
+  - id: example-edge-proxy
+    product: nginx
+    vendor: F5
+    version: "1.25.2"
+    count: 2
+    owner: platform
+    exposure: internet

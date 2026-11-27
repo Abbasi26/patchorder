@@ -1,0 +1,5 @@
+{
+  "url": "https://vulnerability.circl.lu/api/vulnerability/cpesearch/cpe%3A2.3%3Aa%3Af5%3Anginx?per_page=20&page=1",
+  "fetched_at": 4102444800,
+  "body": {"nvd": []}
+}

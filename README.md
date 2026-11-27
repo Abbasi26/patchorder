@@ -120,6 +120,17 @@ python -m patchorder demo --fail-on kev-overdue    # exits 4: KEV due dates on n
 
 The briefing is printed either way. `--fail-on` is repeatable: `kev` (any finding in the loaded KEV catalog), `kev-overdue` (a KEV finding whose due date is before the run's UTC date), `new` (a CVE that was not in `--state`), `internet` (any finding on an internet-facing row), `priority:N` (any finding at or above N points), or `epss:N` (any finding with an EPSS probability at or above N, for example `epss:0.5`). Exit codes: 0 clean, 1 error, 2 usage, 3 offline cache miss, 4 a gate matched.
 
+#### GitHub Actions: offline CSV artifact
+
+The manually triggered [offline scan example](.github/workflows/offline-scan-example.yml) installs patchorder, scans a small fictional inventory without network access, and uploads `offline-scan-findings` as a CSV artifact. Run the same scan locally with:
+
+```bash
+mkdir -p .tmp
+python -m patchorder scan -i examples/offline-scan/inventory.yaml -l examples/offline-scan/inventory.lock.yaml --offline --no-discover-cpes --pinned-only --cache-dir examples/offline-scan/cache --format csv --output .tmp/offline-findings.csv
+```
+
+In GitHub, open **Actions → Offline scan example → Run workflow**. After it finishes, download **offline-scan-findings** from the run's **Artifacts** section. The reduced NVD record was captured on 2026-10-21, the EPSS score on 2026-10-27, and the KEV catalog subset on 2026-10-30; an empty Vulnerability-Lookup response covers that request. These are fixtures, not a current security assessment.
+
 ### Findings as CSV
 
 ```bash

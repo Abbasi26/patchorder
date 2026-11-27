@@ -1,0 +1,13 @@
+{
+  "url": "https://api.first.org/data/v1/epss?cve=CVE-2023-44487",
+  "fetched_at": 4102444800,
+  "body": {
+    "status": "OK",
+    "data": [{
+      "cve": "CVE-2023-44487",
+      "epss": "0.999990000",
+      "percentile": "0.999980000",
+      "date": "2026-10-27"
+    }]
+  }
+}
