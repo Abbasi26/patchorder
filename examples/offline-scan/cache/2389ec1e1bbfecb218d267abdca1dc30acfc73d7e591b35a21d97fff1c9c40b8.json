@@ -1,0 +1,28 @@
+{
+  "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?cpeName=cpe%3A2.3%3Aa%3Af5%3Anginx%3A1.25.2%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A&resultsPerPage=2000&startIndex=0",
+  "fetched_at": 4102444800,
+  "body": {
+    "resultsPerPage": 1,
+    "startIndex": 0,
+    "totalResults": 1,
+    "vulnerabilities": [{
+      "cve": {
+        "id": "CVE-2023-44487",
+        "vulnStatus": "Analyzed",
+        "published": "2023-10-10T14:15:10.883",
+        "descriptions": [{"lang": "en", "value": "HTTP/2 rapid reset can cause server resource consumption."}],
+        "metrics": {"cvssMetricV31": [{"cvssData": {"baseScore": 7.5, "baseSeverity": "HIGH", "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"}}]},
+        "configurations": [{"nodes": [{"cpeMatch": [{
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "1.9.5",
+          "versionEndIncluding": "1.25.2"
+        }]}]}],
+        "references": [{"url": "https://nvd.nist.gov/vuln/detail/CVE-2023-44487"}],
+        "cisaExploitAdd": "2023-10-10",
+        "cisaActionDue": "2023-10-31",
+        "cisaVulnerabilityName": "HTTP/2 Rapid Reset Attack Vulnerability"
+      }
+    }]
+  }
+}
